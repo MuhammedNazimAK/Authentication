@@ -6,20 +6,16 @@ import cloudinary from 'cloudinary';
 
 export const registerUser = async (req, res) => {
     try {
-        
+
         const { name, email, password, gender } = req.body;
         const file = req.file;
         if (!name || !email || !password || !gender || !file) {
-            return res.status(400).json({
-                message: "please provide all values"
-            })
+            return res.status(400).json({ message: "please provide all values" })
         }
 
-        let user = await User.findOne({email});
+        let user = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({
-                message: "User already exist"
-            })
+            return res.status(400).json({ message: "User already exist" })
         }
 
         const fileUrl = getDataUrl(file);
@@ -45,20 +41,15 @@ export const registerUser = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        })
+        res.status(500).json({ message: error.message })
     }
 }
 
 export const loginUser = async (req, res) => {
     try {
-        console.log("req.body", req.body);
-        const {email, password} = req.body;
+        const { email, password } = req.body;
         if (!email, !password) {
-            return res.status(400).json({
-                message: "Please provide all values"
-            });
+            return res.status(400).json({ message: "Please provide all values" });
         }
 
         const user = await User.findOne({ email });
@@ -74,9 +65,7 @@ export const loginUser = async (req, res) => {
         res.json({ message: "Login successfull", user });
 
     } catch (error) {
-        res.status(500).json({
-            message: error.message
-        });
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -85,3 +74,4 @@ export const logoutUser = (req, res) => {
 
     res.json({ message: "Logout successfull" });
 }
+
