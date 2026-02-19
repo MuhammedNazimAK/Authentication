@@ -1,4 +1,7 @@
 import { User } from "../models/userModel.js"
+import cloudinary from 'cloudinary';
+import getDataUrl from '../utils/urlGenerator.js';
+import bcrypt from 'bcrypt';
 
 export const myProfile = async (req, res) => {
     try {
@@ -58,6 +61,52 @@ export const followersAndFollowingsData = async (req, res) => {
         const followers = user.followers;
         const followings = user.following;
         res.json({ followers, followings });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const updateProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { name } = req.body;
+        if (name) {
+            user.name = name
+        }
+
+        const file = req.file;
+        if (file) {
+            const fileUrl = getDataUrl(file);
+
+            await cloudinary.v2.uploader.destroy(user.profilePic.id);
+            const cloud = await cloudinary.v2.uploader.upload(fileUrl.content, {
+                folder: "Core social"
+            });
+
+            user.profilePic.id = cloud.public_id;
+            user.profilePic.url = cloud.secure_url;
+        }
+
+        await user.save();
+
+        res.json({ message: "profile updated" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const updatePassword = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { oldPassword, newPassword } = req.body;
+
+        const comparePassword = await bcrypt.compare(oldPassword, user.password);
+        if (!comparePassword) return res.status(400).json({ message: "Wrong old password" });
+
+        user.password = await bcrypt.hash(newPassword, 10);
+
+        await user.save();
+        res.json({ message: "Password changed" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
