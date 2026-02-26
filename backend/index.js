@@ -20,10 +20,12 @@ app.use(cookieParser());
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import postRoutes from './routes/postRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
+app.use("/api/message", messageRoutes);
 
 app.get("/", (req, res) => {
     res.send("hello")

@@ -111,4 +111,3 @@ export const updatePassword = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
-
