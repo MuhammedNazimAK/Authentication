@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+@import "tailwindcss";
+
+/* Cream & Noir */
+
+.auth-page {
+  @apply min-h-screen flex items-center justify-center bg-[#FAF7F2] px-4 py-10;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.auth-card {
+  @apply w-full max-w-md bg-[#FDFBF8] border border-[#DDD8CF] rounded-md px-8 py-10;
+}
+
+.auth-logo {
+  @apply text-[2.6rem] text-[#111] leading-none tracking-[0.12em];
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+}
+
+.auth-tagline {
+  @apply text-[0.7rem] tracking-[0.18em] uppercase text-[#99968F] mt-1;
+}
+
+.auth-label {
+  @apply text-[0.7rem] tracking-[0.14em] uppercase text-[#99968F] font-medium;
+}
+
+.auth-input {
+  @apply w-full bg-transparent border-0 border-b border-[#DDD8CF] py-2 text-sm
+         text-[#111] placeholder:text-[#99968F] placeholder:font-light
+         outline-none focus:border-b-[#111] transition-colors duration-200;
+}
+
+.gender-option {
+  @apply flex-1 text-center py-2 text-xs tracking-wide text-[#555550]
+         border border-[#DDD8CF] rounded cursor-pointer
+         transition-colors duration-200;
+}
+
+.gender-selected {
+  @apply border-[#111] text-[#111];
+}
+
+.avatar-upload {
+  @apply w-[76px] h-[76px] rounded-full border border-[#DDD8CF]
+         bg-[#F0EBE1] flex items-center justify-center
+         overflow-hidden cursor-pointer;
+}
+
+.auth-btn {
+  @apply w-full bg-[#111] text-[#FAF7F2] py-3 rounded text-[0.75rem]
+         font-medium tracking-[0.18em] uppercase cursor-pointer mt-2;
+}
