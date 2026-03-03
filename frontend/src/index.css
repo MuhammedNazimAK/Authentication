@@ -1,21 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
+body {
+  @apply bg-[#FAF7F2] text-[#111];
+  font-family: 'DM Sans', sans-serif;
+}
+
 /* Cream & Noir */
+.auth-logo, .app-logo {
+  @apply text-[2.6rem] text-[#111] leading-none tracking-[0.12em];
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+}
 
 .auth-page {
-  @apply min-h-screen flex items-center justify-center bg-[#FAF7F2] px-4 py-10;
-  font-family: 'DM Sans', sans-serif;
+  @apply min-h-screen flex items-center justify-center px-4 py-10;
 }
 
 .auth-card {
   @apply w-full max-w-md bg-[#FDFBF8] border border-[#DDD8CF] rounded-md px-8 py-10;
-}
-
-.auth-logo {
-  @apply text-[2.6rem] text-[#111] leading-none tracking-[0.12em];
-  font-family: 'Cormorant Garamond', serif;
-  font-weight: 400;
 }
 
 .auth-tagline {

@@ -1,13 +1,17 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserData } from '../context/UserContext';
 
 export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+
+    const { LoginUser, isSubmitting } = UserData();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log( email, password );
+        LoginUser(email, password, navigate);
     }
 
     return (
@@ -43,8 +47,8 @@ export const Login = () => {
             />
           </div>
 
-          <button type="submit" className="auth-btn">
-            sign in
+          <button type="submit" className="auth-btn" disabled={isSubmitting}>
+            {isSubmitting ? "Loading..." : "sign in"}
           </button>
         </form>
 

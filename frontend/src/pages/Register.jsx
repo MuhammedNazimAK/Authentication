@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserData } from '../context/UserContext';
 
 export const Register = () => {
 
@@ -7,20 +8,30 @@ export const Register = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [gender, setGender] = useState("");
-    const [profilePic, setProfilePic] = useState(null);
+    const [file, setFile] = useState(null);
     const [preview, setPreview] = useState(null);
+
+    const { RegisterUser, isSubmitting } = UserData();
+    const navigate = useNavigate();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setProfilePic(file);
+            setFile(file);
             setPreview(URL.createObjectURL(file));
         }
     }
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log( name, email, password, gender );
+        const formdata = new FormData();
+        formdata.append("name", name);
+        formdata.append("email", email);
+        formdata.append("password", password);
+        formdata.append("gender", gender);
+        formdata.append("file", file);
+
+      RegisterUser(formdata, navigate);
     }
 
     return (
@@ -115,8 +126,8 @@ export const Register = () => {
             </div>
           </div>
 
-          <button type="submit" className="auth-btn">
-            create account
+          <button type="submit" className="auth-btn" disabled={isSubmitting}>
+            {isSubmitting ? "Loading..." : "create account"}
           </button>
         </form>
 
