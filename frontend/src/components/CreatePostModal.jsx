@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { postData } from "../context/PostContext";
 
 export const CreatePostModal = ({ onClose }) => {
   const [file, setFile] = useState(null);
@@ -7,6 +8,7 @@ export const CreatePostModal = ({ onClose }) => {
   const [caption, setCaption] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState(null);
+  const { addPost } = postData();
 
   useEffect(() => {
     return () => {
@@ -16,34 +18,50 @@ export const CreatePostModal = ({ onClose }) => {
 
   const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
+        if (!selectedFile) return;
         if (selectedFile.size > 40 * 1024 * 1024) {
             toast.error("File is too large. Please select a file under 40MB.");
             return;
         }
-        if (selectedFile) {
-            setFile(selectedFile);
-            const type = selectedFile.type.startsWith('video') ? 'video' : 'image';
-            setFileType(type);
-            setPreview(URL.createObjectURL(selectedFile));
-        }
+          setFile(selectedFile);
+          setFileType(selectedFile.type.startsWith('video') ? 'video' : 'image');
+          setPreview(URL.createObjectURL(selectedFile));
+    }
+
+    const submitHandler = async (e) => {
+      e.preventDefault();
+
+      if (!file) return toast.error("Please select a file to upload.");
+      const type = file.type.startsWith('video') ? 'reel' : 'post';
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("caption", caption);
+      formData.append("type", type);
+
+      setIsSubmitting(true);
+      await addPost(formData, setFile, setCaption, setFileType, setPreview);
+      setIsSubmitting(false);
+      onClose();
     }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111]/40 backdrop-blur-sm p-4">
-      <div className="bg-[#FDFBF8] w-full max-w-lg rounded-xl overflow-hidden border border-[#DDD8CF]">
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-[#111]/40 backdrop-blur-sm p-4">
+      <form onClick={(e) => e.stopPropagation()} onSubmit={submitHandler} className="bg-[#FDFBF8] w-full max-w-lg rounded-xl overflow-hidden border border-[#DDD8CF] h-[60dvh] flex flex-col">
         
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#DDD8CF]">
-          <button onClick={onClose} className="text-xs uppercase tracking-widest text-[#99968F]">Cancel</button>
+          <button onClick={onClose} className="w-[80px] text-left text-xs uppercase tracking-widest text-[#99968F]">Cancel</button>
           <span className="text-sm font-medium tracking-wide">Create New Post</span>
-          <button 
+          <button
+             type="submit"
              disabled={!file || isSubmitting}
-             className="text-xs uppercase tracking-widest text-[#111] font-bold disabled:opacity-30"
+             className="w-[80px] text-right text-xs uppercase tracking-widest text-[#111] font-bold disabled:opacity-30 cursor-pointer"
           >
             {isSubmitting ? "Sharing..." : "Share"}
           </button>
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col min-h-0 flex-1">
           {!file ? (
             <label className="flex flex-col items-center justify-center aspect-square cursor-pointer hover:bg-[#F0EBE1]/30">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#99968F" strokeWidth="1">
@@ -56,32 +74,23 @@ export const CreatePostModal = ({ onClose }) => {
             </label>
           ) : (
             <>
-              {fileType === 'image' ? (
-                    <img 
-                    src={preview} 
-                    className="w-full h-full object-contain" 
-                    alt="Preview" 
-                    />
+              <div className="h-72 w-full overflow-hidden bg-[#F0EBE1]">
+                {fileType === 'image' ? (
+                  <img src={preview} className="w-full h-full object-contain" alt="Preview" />
                 ) : (
-                    <video 
-                    src={preview} 
-                    className="w-full h-full object-contain" 
-                    controls 
-                    autoPlay 
-                    muted 
-                    loop
-                    />
+                  <video src={preview} className="w-full h-full object-contain" controls autoPlay muted loop />
                 )}
+              </div>
               <textarea
                 placeholder="Write a caption..."
-                className="w-full p-4 text-sm bg-transparent outline-none resize-none h-24"
+                className="w-full flex-1 p-4 text-sm bg-transparent outline-none resize-none"
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
               />
             </>
           )}
         </div>
-      </div>
+      </form>
     </div>
   );
 };

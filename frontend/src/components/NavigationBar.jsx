@@ -82,12 +82,13 @@ export const NavigationBar = () => {
     <>
     {!hideTopBar && (
         <div
-          className={`md:hidden fixed top-0 left-0 right-0 h-14 px-4 flex items-center z-20 transition-colors duration-300 ${
-            isReels
-              ? "bg-transparent border-none justify-center"
-              : "bg-[#FDFBF8] border-b border-[#DDD8CF] justify-between"
-          }`}
-        >
+            className={`md:hidden fixed top-0 left-0 right-0 h-14 px-4 flex items-center z-20 
+              transition-all duration-500 ease-in-out
+              ${isReels
+                ? "bg-[#FDFBF8]/0 border-transparent justify-center"
+                : "bg-[#FDFBF8] border-b border-[#DDD8CF] justify-between"
+              }`}
+          >
           <button
             onClick={() => setIsCreateOpen(true)}
             className={`p-1 transition-colors cursor-pointer ${

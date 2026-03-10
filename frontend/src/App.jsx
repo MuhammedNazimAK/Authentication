@@ -18,7 +18,7 @@ const App = () => {
         {user && <NavigationBar />}
         <div className={user ? "md:pl-56" : ""}>
           <Routes>
-            <Route path='/' element={<Home />} />
+            <Route path='/' element={<Home user={user} />} />
             <Route path='/reels' element={<Reels />} />
             <Route path='/login' element={user ? <Navigate to="/" replace /> : <Login />} />
             <Route path='/register' element={user ? <Navigate to="/" replace /> : <Register />} />

@@ -5,20 +5,17 @@ import getDataUrl from "../utils/urlGenerator.js";
 export const createPost = async (req, res) => {
     try {
         const ownerId = req.user._id;
-        const { caption } = req.body;
+        const { caption, type } = req.body;
 
         const file = req.file;
         const fileUrl = getDataUrl(file);
         
-        let option;
+        let option = {};
         
-        const type = req.query.type;
         if (type === "reel") {
             option = {
                 resource_type: "video",
             };
-        } else {
-            option = {};
         }
 
         const cloud = await cloudinary.v2.uploader.upload(fileUrl.content, {
@@ -36,7 +33,7 @@ export const createPost = async (req, res) => {
             type,
         })
 
-        res.status(201).json({ message: "Post created", post });
+        res.status(201).json({ message: "Post created", newPost: post });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -65,7 +62,7 @@ export const deletePost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find({type: "post"}).sort({ createdAt: -1 }).populate("owner", "-password");
+        const posts = await Post.find({ type: "post" }).sort({ createdAt: -1 }).populate("owner", "-password");
         const reels = await Post.find({ type: "reel" }).sort({ createdAt: -1 }).populate("owner", "-password");
 
         res.json({posts, reels});
@@ -77,19 +74,21 @@ export const getAllPosts = async (req, res) => {
 export const likeUnlikePost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
+        console.log("Finding post with ID:", req.params.id);
         if (!post) return res.status(404).json({ message: "Post not found" });
-
-        if (post.likes.includes(req.user._id)) {
-            const index = post.likes.indexOf(req.user._id);
-            post.likes.splice(index, 1);
-
+        console.log("Post found:", post);
+        const isLiked = post.likes.some(id => id.toString() === req.user._id.toString());
+        if (isLiked) {
+            post.likes = post.likes.filter(id => id.toString() !== req.user._id.toString());
             await post.save();
-            res.json({ message: "Post unliked" });
-        } else {
-            post.likes.push(req.user._id);
-            await post.save();
-            res.json({ message: "Post liked" });
+            console.log("Post unliked:", post);
+            return res.json({ message: "Post unliked" });
         }
+
+        post.likes.push(req.user._id);
+        await post.save();
+        console.log("Post liked:", post);
+        res.json({ message: "Post liked" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
