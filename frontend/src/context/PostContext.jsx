@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import { UserData } from "./UserContext";
 
 const PostContext = createContext();
 
@@ -8,6 +9,7 @@ export const PostContextProvider = ({ children }) => {
 
     const [posts, setPosts] = useState([]);
     const [reels, setReels] = useState([]);
+    const { user } = UserData();
 
     async function fetchPosts() {
         try {
@@ -44,41 +46,13 @@ export const PostContextProvider = ({ children }) => {
     }
 
     async function toggleLike(id) {
-        console.log("Toggling like for post ID:", id);
         try {
-            await axios.post(`/api/post/${id}/like`);
+            const { data: updatedPost } = await axios.post(`/api/post/${id}/like`);
 
-            setReels(prev =>
-                prev.map(reel => {
-                    if (reel._id !== id) return reel;
+            const updateList = (list) => list.map(item => item._id === id ? updatedPost : item);
 
-                    const isLiked = reel.liked;
-
-                    return {
-                    ...reel,
-                    liked: !isLiked,
-                    likes: isLiked
-                        ? reel.likes.filter(l => l !== user._id)
-                        : [...reel.likes, user._id]
-                    };
-                })
-            );
-
-            setPosts(prev =>
-                prev.map(post => {
-                    if (post._id !== id) return post;
-
-                    const isLiked = post.liked;
-
-                    return {
-                    ...post,
-                    liked: !isLiked,
-                    likes: isLiked
-                        ? post.likes.filter(l => l !== user._id)
-                        : [...post.likes, user._id]
-                    };
-                })
-            );
+            setPosts(prev => updateList(prev));
+            setReels(prev => updateList(prev));
             
         } catch (err) {
             console.error(err);

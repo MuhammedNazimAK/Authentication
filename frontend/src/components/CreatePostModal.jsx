@@ -50,12 +50,12 @@ export const CreatePostModal = ({ onClose }) => {
       <form onClick={(e) => e.stopPropagation()} onSubmit={submitHandler} className="bg-[#FDFBF8] w-full max-w-lg rounded-xl overflow-hidden border border-[#DDD8CF] h-[60dvh] flex flex-col">
         
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#DDD8CF]">
-          <button onClick={onClose} className="w-[80px] text-left text-xs uppercase tracking-widest text-[#99968F]">Cancel</button>
+          <button onClick={onClose} className="w-20 text-left text-xs uppercase tracking-widest text-[#99968F]">Cancel</button>
           <span className="text-sm font-medium tracking-wide">Create New Post</span>
           <button
              type="submit"
              disabled={!file || isSubmitting}
-             className="w-[80px] text-right text-xs uppercase tracking-widest text-[#111] font-bold disabled:opacity-30 cursor-pointer"
+             className="w-20 text-right text-xs uppercase tracking-widest text-[#111] font-bold disabled:opacity-30 cursor-pointer"
           >
             {isSubmitting ? "Sharing..." : "Share"}
           </button>

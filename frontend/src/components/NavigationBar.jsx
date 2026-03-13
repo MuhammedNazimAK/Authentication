@@ -73,26 +73,21 @@ export const NavigationBar = () => {
   const { LogoutUser } = UserData();
   const [showMore, setShowMore] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const isReels = pathname === "/reels";
-  const hideTopBar = hideTopBarRoutes.includes(pathname);
+  const isHidden = pathname === ["/search", "/chat", "/reels"].find(p => p === pathname);
 
   const logoutHandler = () => LogoutUser(navigate);
   
   return (
     <>
-    {!hideTopBar && (
+    {!isHidden && (
         <div
-            className={`md:hidden fixed top-0 left-0 right-0 h-14 px-4 flex items-center z-20 
-              transition-all duration-500 ease-in-out
-              ${isReels
-                ? "bg-[#FDFBF8]/0 border-transparent justify-center"
-                : "bg-[#FDFBF8] border-b border-[#DDD8CF] justify-between"
-              }`}
-          >
-          <button
+            className={`md:hidden fixed top-0 left-0 right-0 h-14 px-4 flex items-center z-20
+              transition-all duration-500 ease-in-out bg-[#FDFBF8] border-b border-[#DDD8CF] justify-between`}>
+            <>
+            <button
             onClick={() => setIsCreateOpen(true)}
             className={`p-1 transition-colors cursor-pointer ${
-              isReels ? "text-white drop-shadow-md" : "text-[#111]"
+              isHidden ? "text-white drop-shadow-md" : "text-[#111]"
             }`}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -101,9 +96,6 @@ export const NavigationBar = () => {
               <line x1="8" y1="12" x2="16" y2="12" />
             </svg>
           </button>
-
-          {!isReels && (
-            <>
               <h1 className="app-logo text-xl">Core</h1>
 
               <div className="relative">
@@ -137,9 +129,9 @@ export const NavigationBar = () => {
                 )}
               </div>
             </>
-          )}
         </div>
-      )}
+        )}
+
     
       <aside className="hidden md:flex flex-col fixed left-0 top-0 h-full w-56 bg-[#FDFBF8] border-r border-[#DDD8CF] px-4 py-8 z-20">
 

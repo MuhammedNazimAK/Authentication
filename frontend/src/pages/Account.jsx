@@ -23,7 +23,7 @@ export const Account = ({ user }) => {
     <div className="max-w-2xl mx-auto px-4 py-6 md:py-10">
       
       <div className="flex items-center gap-6 sm:gap-10 mb-6">
-        <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border border-[#DDD8CF] bg-[#F0EBE1] overflow-hidden flex-shrink-0 flex items-center justify-center">
+        <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border border-[#DDD8CF] bg-[#F0EBE1] overflow-hidden shrink-0 flex items-center justify-center">
           {user.profilePic ? (
             <img src={user.profilePic.url} alt={user.name} className="w-full h-full object-cover" />
           ) : (
@@ -42,11 +42,11 @@ export const Account = ({ user }) => {
           <div className="flex gap-8">
             <div className="flex flex-col items-start">
               <span className="text-sm font-semibold text-[#111]">{user.followers.length}</span>
-              <span className="text-[0.65rem] tracking-[0.1em] uppercase text-[#99968F]">followers</span>
+              <span className="text-[0.65rem] tracking-widest uppercase text-[#99968F]">followers</span>
             </div>
             <div className="flex flex-col items-start">
               <span className="text-sm font-semibold text-[#111]">{user.followings.length}</span>
-              <span className="text-[0.65rem] tracking-[0.1em] uppercase text-[#99968F]">following</span>
+              <span className="text-[0.65rem] tracking-widest uppercase text-[#99968F]">following</span>
             </div>
           </div>
         </div>

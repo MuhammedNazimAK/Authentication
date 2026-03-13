@@ -74,21 +74,17 @@ export const getAllPosts = async (req, res) => {
 export const likeUnlikePost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
-        console.log("Finding post with ID:", req.params.id);
         if (!post) return res.status(404).json({ message: "Post not found" });
-        console.log("Post found:", post);
         const isLiked = post.likes.some(id => id.toString() === req.user._id.toString());
         if (isLiked) {
             post.likes = post.likes.filter(id => id.toString() !== req.user._id.toString());
             await post.save();
-            console.log("Post unliked:", post);
-            return res.json({ message: "Post unliked" });
+            return res.json(post);
         }
 
         post.likes.push(req.user._id);
         await post.save();
-        console.log("Post liked:", post);
-        res.json({ message: "Post liked" });
+        res.status(200).json(post);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -10,7 +10,7 @@ export const Home = () => {
     );
 
     return (
-        <main className="max-w-[470px] mx-auto pt-14 md:pt-6 pb-20 md:pb-6">
+        <main className="max-w-117.5 mx-auto pt-14 md:pt-6 pb-20 md:pb-6">
             {feed.map(post => (
                 <PostCard key={post._id} post={post} />
             ))}

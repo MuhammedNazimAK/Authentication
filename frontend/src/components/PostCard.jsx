@@ -103,7 +103,7 @@ export const PostCard = ({ post, currentUser }) => {
           )}
 
           {post.timestamp && (
-            <p className="text-[0.65rem] tracking-[0.1em] uppercase text-[#99968F]">{post.timestamp}</p>
+            <p className="text-[0.65rem] tracking-widest uppercase text-[#99968F]">{post.timestamp}</p>
           )}
         </div>
       </article>
@@ -209,7 +209,7 @@ function PostModal({ post, onClose, type }) {
               {comment.trim() && (
                 <button
                   onClick={() => setComment("")}
-                  className="text-[0.7rem] tracking-[0.1em] uppercase text-[#111] font-medium cursor-pointer"
+                  className="text-[0.7rem] tracking-widest uppercase text-[#111] font-medium cursor-pointer"
                 >
                   Post
                 </button>
@@ -259,7 +259,7 @@ function Avatar({ avatar, user, size = "md", dark = false }) {
   const dim = size === "sm" ? "w-7 h-7" : "w-8 h-8";
   const text = size === "sm" ? "text-[0.5rem]" : "text-[0.55rem]";
   return (
-    <div className={`${dim} rounded-full ${dark ? "bg-[#333] border-white/20" : "bg-[#F0EBE1] border-[#DDD8CF]"} border overflow-hidden flex-shrink-0`}>
+    <div className={`${dim} rounded-full ${dark ? "bg-[#333] border-white/20" : "bg-[#F0EBE1] border-[#DDD8CF]"} border overflow-hidden shrink-0`}>
       {avatar ? (
         <img src={avatar} alt={user} className="w-full h-full object-cover" />
       ) : (
