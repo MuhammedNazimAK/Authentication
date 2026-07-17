@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HeartIcon, CommentIcon, SaveIcon } from "./icons";
 import { AutoPlayVideo } from "./AutoPlayVideo";
+import { PostData } from "../context/PostContext";
+import { UserData } from "../context/UserContext";
 
 const DUMMY_COMMENTS = [
   { id: 1, user: "sofia.m", avatar: "", text: "absolutely stunning 🤍", timestamp: "2h" },
@@ -15,11 +17,16 @@ const DUMMY_COMMENTS = [
 
 export const PostCard = ({ post, currentUser }) => {
   const navigate = useNavigate();
-  const [liked, setLiked] = useState(post.liked ?? false);
-  const [likes, setLikes] = useState(post.likes ?? 0);
   const [saved, setSaved] = useState(post.saved ?? false);
   const [modalOpen, setModalOpen] = useState(false);
   const [isCaptionExpanded, setIsCaptionExpanded] = useState(false);
+
+  const { toggleLike } = PostData();
+  const { user } = UserData();
+
+  const isLiked = post.likes?.includes(user?._id);
+
+  const handleLike = async (id) => await toggleLike(id);
 
   const handleMediaClick = () => {
     const isMobile = window.innerWidth < 768;
@@ -31,37 +38,30 @@ export const PostCard = ({ post, currentUser }) => {
     }
   };
 
-  const toggleLike = () => {
-    setLiked((p) => !p);
-    setLikes((p) => liked ? p - 1 : p + 1);
-  };
-
   const isOwnPost = currentUser === post.user;
 
   return (
     <>
-      <article className="bg-[#FDFBF8] border-b border-[#DDD8CF]">
+      <article className="bg-bg border-b border-border">
         <PostHeader user={post.owner?.name} avatar={post.owner?.profilePic?.url} isOwn={isOwnPost} />
 
-        <div className="aspect-square w-full bg-[#050505] overflow-hidden"
+        <div className="aspect-square w-full bg-surface overflow-hidden"
           onClick={handleMediaClick}
           >
           {post.post?.url ? (
             post.type === "reel" ? (
               <AutoPlayVideo 
-                src={post.post.url} 
+                src={post.post.url}
                 className="w-full h-full object-contain" 
-                muted 
-                loop 
-                playsInline
                 shouldPause={modalOpen}
+                onVideoClick={handleMediaClick}
               />
             ) : (
-              <img src={post.post.url} alt="" className="w-full h-full object-contain" />
+              <img src={post.post.url} alt="" className="w-full h-full object-contain" onClick={handleMediaClick} />
             )
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-[0.65rem] tracking-[0.16em] uppercase text-[#99968F]">no media</span>
+              <span className="text-[0.65rem] tracking-widest uppercase text-subtle">no media</span>
             </div>
           )}
         </div>
@@ -69,13 +69,13 @@ export const PostCard = ({ post, currentUser }) => {
         <div className="px-3 pt-3 pb-4 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button onClick={toggleLike} className="flex items-center gap-1.5 cursor-pointer">
-                <HeartIcon filled={liked} />
-                <span className="text-[0.7rem] tracking-[0.06em] text-[#555550]">{likes}</span>
+              <button onClick={() => handleLike(post._id)} className="flex items-center gap-1.5 cursor-pointer">
+                <HeartIcon filled={isLiked} />
+                <span className="text-[0.7rem] tracking-wider text-text w-4 text-left">{post.likes.length}</span>
               </button>
               <button onClick={() => setModalOpen(true)} className="flex items-center gap-1.5 cursor-pointer">
                 <CommentIcon />
-                <span className="text-[0.7rem] tracking-[0.06em] text-[#555550]">{DUMMY_COMMENTS.length}</span>
+                <span className="text-[0.7rem] tracking-wider text-text">{DUMMY_COMMENTS.length}</span>
               </button>
             </div>
             <button onClick={() => setSaved((p) => !p)} className="cursor-pointer">
@@ -84,16 +84,16 @@ export const PostCard = ({ post, currentUser }) => {
           </div>
 
           {post.caption && (
-            <p className="text-[0.8rem] text-[#111] leading-relaxed">
+            <p className="text-[0.8rem] text-text leading-relaxed">
               <span className="font-medium tracking-wide">{post.user}</span>{" "}
-              <span className="text-[#333]">
+              <span className="text-text">
                 {post.caption.length > 100 && !isCaptionExpanded
                   ? `${post.caption.substring(0, 100)}... `
                   : post.caption}
                 {post.caption.length > 100 && !isCaptionExpanded && (
                   <button
                     onClick={() => setIsCaptionExpanded(true)}
-                    className="text-[#555550] font-medium cursor-pointer hover:underline"
+                    className="text-subtle font-medium cursor-pointer hover:underline"
                   >
                     read more
                   </button>
@@ -103,7 +103,7 @@ export const PostCard = ({ post, currentUser }) => {
           )}
 
           {post.timestamp && (
-            <p className="text-[0.65rem] tracking-widest uppercase text-[#99968F]">{post.timestamp}</p>
+            <p className="text-[0.65rem] tracking-widest uppercase text-subtle">{post.timestamp}</p>
           )}
         </div>
       </article>
@@ -238,12 +238,12 @@ function PostHeader({ user, avatar, isOwn }) {
       <div className="flex items-center gap-2.5">
         <Avatar avatar={avatar} user={user} />
         <div className="flex flex-col">
-          <span className="text-[0.78rem] font-medium text-[#111] tracking-wide leading-tight">{user}</span>
+          <span className="text-[0.78rem] font-medium text-text tracking-wide leading-tight">{user}</span>
         </div>
       </div>
       <div className="flex items-center gap-2">
         {!isOwn && (
-          <button className="text-[0.65rem] tracking-[0.14em] uppercase text-[#111] border border-[#DDD8CF] px-2.5 py-1 rounded cursor-pointer hover:bg-[#F0EBE1] transition-colors">
+          <button className="text-[0.65rem] tracking-widest uppercase text-text border border-border px-2.5 py-1 rounded cursor-pointer hover:bg-surface transition-colors">
             Follow
           </button>
         )}
@@ -259,12 +259,12 @@ function Avatar({ avatar, user, size = "md", dark = false }) {
   const dim = size === "sm" ? "w-7 h-7" : "w-8 h-8";
   const text = size === "sm" ? "text-[0.5rem]" : "text-[0.55rem]";
   return (
-    <div className={`${dim} rounded-full ${dark ? "bg-[#333] border-white/20" : "bg-[#F0EBE1] border-[#DDD8CF]"} border overflow-hidden shrink-0`}>
+    <div className={`${dim} rounded-full ${dark ? "bg-[#333] border-white/20" : "bg-bg border-border"} border overflow-hidden shrink-0`}>
       {avatar ? (
         <img src={avatar} alt={user} className="w-full h-full object-cover" />
       ) : (
         <div className="w-full h-full flex items-center justify-center">
-          <span className={`${text} tracking-widest uppercase ${dark ? "text-white/50" : "text-[#99968F]"}`}>{user?.[0]}</span>
+          <span className={`${text} tracking-widest uppercase ${dark ? "text-white/50" : "text-subtle"}`}>{user?.[0]}</span>
         </div>
       )}
     </div>

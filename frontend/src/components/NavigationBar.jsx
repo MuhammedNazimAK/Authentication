@@ -3,7 +3,16 @@ import { UserData } from "../context/UserContext";
 import { useState } from "react";
 import { CreatePostModal } from "./CreatePostModal";
 
-const hideTopBarRoutes = ["/search", "/chat"];
+const hideTopBarRoutes = ["/search", "/chat", "/reels"];
+
+const CreateIcon = (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <line x1="12" y1="8" x2="12" y2="16" />
+    <line x1="8" y1="12" x2="16" y2="12" />
+  </svg>
+);
+
 const navItems = [
   {
     label: "home",
@@ -46,13 +55,7 @@ const navItems = [
   },
   {
     label: "create",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-        <line x1="12" y1="8" x2="12" y2="16" />
-        <line x1="8" y1="12" x2="16" y2="12" />
-      </svg>
-    ),
+    icon: CreateIcon,
     isButton: true,
   },
   {
@@ -67,78 +70,82 @@ const navItems = [
   },
 ];
 
+const MoreMenu = ({ show, onClose, onLogout, position }) => {
+  if (!show) return null;
+  const posClass =
+    position === "top"
+      ? "top-full right-0 mt-2 w-40 slide-in-from-top-2"
+      : "bottom-full left-0 mb-2 w-48 slide-in-from-bottom-2";
+
+  return (
+    <div
+      className={`absolute ${posClass} bg-bg border border-border rounded-lg shadow-xl overflow-hidden z-30 animate-in fade-in`}
+    >
+      <Link
+        to="/settings"
+        onClick={onClose}
+        className="flex items-center px-4 py-3 text-sm text-text hover:bg-surface transition-colors"
+      >
+        Settings
+      </Link>
+      <button
+        onClick={() => { onClose(); onLogout(); }}
+        className="w-full text-left px-4 py-3 text-sm text-text border-t border-border hover:bg-surface transition-colors cursor-pointer"
+      >
+        Log out
+      </button>
+    </div>
+  );
+};
+
 export const NavigationBar = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { LogoutUser } = UserData();
   const [showMore, setShowMore] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const isHidden = pathname === ["/search", "/chat", "/reels"].find(p => p === pathname);
+  const isHidden = hideTopBarRoutes.includes(pathname);
 
   const logoutHandler = () => LogoutUser(navigate);
-  
+
   return (
     <>
-    {!isHidden && (
+      {!isHidden && (
         <div
-            className={`md:hidden fixed top-0 left-0 right-0 h-14 px-4 flex items-center z-20
-              transition-all duration-500 ease-in-out bg-[#FDFBF8] border-b border-[#DDD8CF] justify-between`}>
-            <>
-            <button
-            onClick={() => setIsCreateOpen(true)}
-            className={`p-1 transition-colors cursor-pointer ${
-              isHidden ? "text-white drop-shadow-md" : "text-[#111]"
-            }`}
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <line x1="12" y1="8" x2="12" y2="16" />
-              <line x1="8" y1="12" x2="16" y2="12" />
-            </svg>
-          </button>
-              <h1 className="app-logo text-xl">Core</h1>
-
-              <div className="relative">
-                <button
-                  onClick={() => setShowMore(!showMore)}
-                  className="p-1 text-[#111] cursor-pointer"
-                >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <line x1="3" y1="12" x2="21" y2="12" />
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="18" x2="21" y2="18" />
-                  </svg>
-                </button>
-
-                {showMore && (
-                  <div className="absolute top-full right-0 mt-2 w-40 bg-[#FDFBF8] border border-[#DDD8CF] rounded-lg shadow-xl overflow-hidden z-30 animate-in fade-in slide-in-from-top-2">
-                    <Link
-                      to="/settings"
-                      onClick={() => setShowMore(false)}
-                      className="flex items-center px-4 py-3 text-sm text-[#111] hover:bg-[#F0EBE1] transition-colors"
-                    >
-                      Settings
-                    </Link>
-                    <button
-                      onClick={() => { setShowMore(false); logoutHandler(); }}
-                      className="w-full text-left px-4 py-3 text-sm text-[#111] border-t border-[#DDD8CF] hover:bg-[#F0EBE1] transition-colors cursor-pointer"
-                    >
-                      Log out
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-        </div>
-        )}
-
-    
-      <aside className="hidden md:flex flex-col fixed left-0 top-0 h-full w-56 bg-[#FDFBF8] border-r border-[#DDD8CF] px-4 py-8 z-20">
-
-        <Link
-          to="/"
-          className="app-logo text-[2rem] tracking-[0.12em] text-[#111] mb-10 px-2"
+          className="md:hidden fixed top-0 left-0 right-0 h-14 px-4 flex items-center z-20
+            transition-all duration-500 ease-in-out bg-bg border-b border-border justify-between"
         >
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="p-1 text-text transition-colors cursor-pointer"
+          >
+            {CreateIcon}
+          </button>
+          <h1 className="app-logo text-xl">Core</h1>
+
+          <div className="relative">
+            <button
+              onClick={() => setShowMore(!showMore)}
+              className="p-1 text-text cursor-pointer"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <MoreMenu
+              show={showMore}
+              onClose={() => setShowMore(false)}
+              onLogout={logoutHandler}
+              position="top"
+            />
+          </div>
+        </div>
+      )}
+
+      <aside className="hidden md:flex flex-col fixed left-0 top-0 h-full w-56 bg-bg border-r border-border px-4 py-8 z-20">
+        <Link to="/" className="app-logo text-[2rem] tracking-wide text-text mb-10 px-2">
           Core
         </Link>
 
@@ -146,50 +153,39 @@ export const NavigationBar = () => {
           {navItems.map(({ label, to, icon, isButton }) => {
             const active = pathname === to;
             const commonClass = `flex items-center gap-4 px-3 py-3 rounded-md text-sm tracking-wide transition-colors duration-150 cursor-pointer ${
-            active ? "text-[#111] font-medium bg-[#F0EBE1]" : "text-[#99968F] hover:bg-[#F0EBE1]/50"
+              active ? "text-text font-medium bg-bg" : "text-text hover:bg-surface/50"
             }`;
 
             if (isButton) {
-            return (
+              return (
                 <button key={label} onClick={() => setIsCreateOpen(true)} className={commonClass}>
-                <span>{icon}</span>
-                {label}
+                  <span>{icon}</span>
+                  {label}
                 </button>
-            );
+              );
             }
 
             return (
-            <Link key={to} to={to} className={commonClass}>
+              <Link key={to} to={to} className={commonClass}>
                 <span>{icon}</span>
                 {label}
-            </Link>
+              </Link>
             );
-        })}
+          })}
         </nav>
 
         <div className="mt-auto relative">
-          {showMore && (
-            <div className="absolute bottom-full left-0 mb-2 w-48 bg-[#FDFBF8] border border-[#DDD8CF] rounded-lg shadow-xl overflow-hidden z-30 animate-in fade-in slide-in-from-bottom-2">
-              <Link
-                to="/settings"
-                onClick={() => setShowMore(false)}
-                className="flex items-center px-4 py-3 text-sm text-[#111] hover:bg-[#F0EBE1] transition-colors"
-              >
-                Settings
-              </Link>
-              <button
-                onClick={logoutHandler}
-                className="w-full text-left px-4 py-3 text-sm text-[#111] border-t border-[#DDD8CF] hover:bg-[#F0EBE1] transition-colors cursor-pointer"
-              >
-                Log out
-              </button>
-            </div>
-          )}
+          <MoreMenu
+            show={showMore}
+            onClose={() => setShowMore(false)}
+            onLogout={logoutHandler}
+            position="bottom"
+          />
 
           <button
             onClick={() => setShowMore(!showMore)}
-            className={`w-full flex items-center gap-4 px-3 py-3 rounded-md text-sm tracking-wide transition-colors
-              ${showMore ? "bg-[#F0EBE1] text-[#111]" : "text-[#99968F] hover:bg-[#F0EBE1]/50"}`}
+            className={`w-full flex items-center gap-4 px-3 py-3 rounded-md text-sm tracking-wide transition-colors cursor-pointer
+              ${showMore ? "bg-bg text-text" : "text-text hover:bg-surface/50"}`}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -201,25 +197,25 @@ export const NavigationBar = () => {
         </div>
       </aside>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-[#FDFBF8] border-t border-[#DDD8CF] flex items-center justify-around px-2 py-3">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-bg border-t border-border flex items-center justify-around px-2 py-3">
         {navItems
-        .filter((item) => !item.isButton)
-        .map(({ label, to, icon }) => {
+          .filter((item) => !item.isButton)
+          .map(({ label, to, icon }) => {
             const active = pathname === to;
             return (
-                <Link
+              <Link
                 key={to}
                 to={to}
                 className={`flex flex-col items-center gap-1 transition-colors duration-150
-                    ${active ? "text-[#111]" : "text-[#99968F]"}`}
-                >
+                  ${active ? "text-text" : "text-subtle"}`}
+              >
                 {icon}
-                <span className="text-[0.6rem] tracking-[0.12em] uppercase">{label}</span>
-                </Link>
+                <span className="text-[0.6rem] tracking-widest uppercase">{label}</span>
+              </Link>
             );
-            })}
+          })}
       </nav>
       {isCreateOpen && <CreatePostModal onClose={() => setIsCreateOpen(false)} />}
     </>
   );
-}
+};

@@ -1,17 +1,11 @@
 import { PostCard } from "../components/PostCard";
-import { postData } from "../context/PostContext"
+import { PostData } from "../context/PostContext"
 
 export const Home = () => {
-
-    const { posts, reels } = postData();
-
-    const feed = [...posts, ...reels].sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
-    );
-
+    const { posts } = PostData();
     return (
         <main className="max-w-117.5 mx-auto pt-14 md:pt-6 pb-20 md:pb-6">
-            {feed.map(post => (
+            {posts && posts.map(post => (
                 <PostCard key={post._id} post={post} />
             ))}
         </main>

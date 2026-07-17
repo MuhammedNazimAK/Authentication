@@ -28,29 +28,29 @@ export const Register = () => {
         formdata.append("name", name);
         formdata.append("email", email);
         formdata.append("password", password);
-        formdata.append("gender", gender);
+        formdata.append("gender", gender.toLowerCase());
         formdata.append("file", file);
 
       RegisterUser(formdata, navigate);
     }
 
     return (
-    <div className="auth-page">
-      <div className="auth-card">
+    <div className="min-h-screen flex justify-center items-center px-4 py-10">
+      <div className="bg-surface border border-border rounded-md px-8 py-10 w-full max-w-sm">
 
-        <div className="text-center mb-8">
-          <h1 className="auth-logo">Core</h1>
-          <p className="auth-tagline">create your account</p>
+        <div className="text-center mb-7">
+          <h1 className="text-5xl text-text tracking-widest mb-1">Core</h1>
+          <p className="text-[0.7rem] text-muted tracking-[0.18em]">create your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
           <div className="flex justify-center mb-2">
-            <label htmlFor="profilePic" className="avatar-upload">
+            <label htmlFor="profilePic" className="w-[76px] h-[76px] rounded-full border border-border bg-surface flex items-center justify-center overflow-hidden cursor-pointer">
               {preview ? (
                 <img src={preview} alt="preview" className="w-full h-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center gap-1 text-[#99968F]">
+                <div className="flex flex-col items-center gap-1 text-muted">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
@@ -69,7 +69,7 @@ export const Register = () => {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="auth-label">full name</label>
+            <label className="text-muted uppercase tracking-widest text-xs">full name</label>
             <input
               type="text"
               name="name"
@@ -81,7 +81,7 @@ export const Register = () => {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="auth-label">email</label>
+            <label className="text-muted uppercase tracking-widest text-xs">email</label>
             <input
               type="email"
               name="email"
@@ -93,7 +93,7 @@ export const Register = () => {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="auth-label">password</label>
+            <label className="text-muted uppercase tracking-widest text-xs">password</label>
             <input
               type="password"
               name="password"
@@ -105,12 +105,12 @@ export const Register = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="auth-label">gender</label>
+            <label className="text-muted uppercase tracking-widest text-xs">gender</label>
             <div className="flex gap-2">
-              {["male", "female", "other"].map((g) => (
+              {["Male", "Female", "Other"].map((g) => (
                 <label
                   key={g}
-                  className={`gender-option ${gender === g ? "gender-selected" : ""}`}
+                  className={`flex-1 text-center py-2 text-xs tracking-wide border rounded cursor-pointer transition-colors duration-200 ${gender === g ? "border-accent text-accent" : "border-border text-muted"}`}
                 >
                   <input
                     type="radio"
@@ -131,9 +131,9 @@ export const Register = () => {
           </button>
         </form>
 
-        <p className="text-center mt-6 text-sm text-[#99968F]">
+        <p className="text-center mt-6 text-sm text-muted">
           already have an account?{" "}
-          <Link to="/login" className="text-[#111] underline underline-offset-2">
+          <Link to="/login" className="text-text">
             sign in
           </Link>
         </p>

@@ -18,6 +18,8 @@ export const createPost = async (req, res) => {
             };
         }
 
+        console.log("type", type)
+
         const cloud = await cloudinary.v2.uploader.upload(fileUrl.content, {
             folder: "Core social",
             ...option
@@ -60,12 +62,59 @@ export const deletePost = async (req, res) => {
     }
 }
 
-export const getAllPosts = async (req, res) => {
+export const getUserPosts = async (req, res) => {
     try {
-        const posts = await Post.find({ type: "post" }).sort({ createdAt: -1 }).populate("owner", "-password");
-        const reels = await Post.find({ type: "reel" }).sort({ createdAt: -1 }).populate("owner", "-password");
+        const owner = req.params.userId;
+        const posts = await Post.find({ owner, type: "post" }).sort({ createdAt: -1 }).populate("owner", "-password");
+        const reels = await Post.find({ owner, type: "reel" }).sort({ createdAt: -1 }).populate("owner", "-password");
 
-        res.json({posts, reels});
+        res.json({ posts, reels });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const homeFeed = async (req, res) => {
+    try {
+
+        const currentUserId = req.user._id;
+        const followingIds = req.user.followings || [];
+
+        const followingFeed = await Post.find({ owner: { $in: followingIds } })
+            .sort({ createdAt: -1 })
+            .populate("owner", "-password");
+
+        const otherFeed = await Post.find({ owner: { $nin: [...followingIds, currentUserId] } })
+            .sort({ createdAt: -1 })
+            .populate("owner", "-password");
+
+        res.json({ posts: [...followingFeed, ...otherFeed] });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const reelsFeed = async (req, res) => {
+    try {
+        const currentUserId = req.user._id;
+        const followingIds = req.user.followings || [];
+
+        const followingFeed = await Post.find({ 
+            owner: { $in: followingIds }, 
+            type: "reel" 
+        })
+        .sort({ createdAt: -1 })
+        .populate("owner", "-password");
+
+        const otherFeed = await Post.find({ 
+            owner: { $nin: [...followingIds, currentUserId] }, 
+            type: "reel" 
+        })
+        .sort({ createdAt: -1 })
+        .populate("owner", "-password");
+
+        res.json({ reels: [...followingFeed, ...otherFeed] });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -76,15 +125,15 @@ export const likeUnlikePost = async (req, res) => {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ message: "Post not found" });
         const isLiked = post.likes.some(id => id.toString() === req.user._id.toString());
+
         if (isLiked) {
             post.likes = post.likes.filter(id => id.toString() !== req.user._id.toString());
-            await post.save();
-            return res.json(post);
+        } else {
+            post.likes.push(req.user._id);
         }
-
-        post.likes.push(req.user._id);
         await post.save();
-        res.status(200).json(post);
+        const updatedPost = await post.populate("owner", "name profilePic");
+        res.status(200).json(updatedPost);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

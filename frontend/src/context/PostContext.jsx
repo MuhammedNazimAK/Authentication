@@ -9,20 +9,45 @@ export const PostContextProvider = ({ children }) => {
 
     const [posts, setPosts] = useState([]);
     const [reels, setReels] = useState([]);
+    const [userPosts, setUserPosts] = useState([]);
+    const [userReels, setUserReels] = useState([]);
+    
     const { user } = UserData();
 
-    async function fetchPosts() {
+    async function fetchHomeFeed() {
         try {
-            const { data } = await axios.get('/api/post/all');
+            const { data } = await axios.get("/api/post/feed");
             setPosts(data.posts);
-            setReels(data.reels);
         } catch (error) {
-            console.error(error);
+            console.error("Eror fetching home feed:", error);
         }
     }
+
+    async function fetchReelFeed() {
+        try {
+            const { data } = await axios.get("/api/post/reel");
+            setReels(data.reels);
+        } catch (error) {
+            console.error("Error fetching reel feed:", error);
+        }
+    }
+
+    async function fetchUserPosts(targetUserId) {
+        try {
+            const { data } = await axios.get(`/api/post/user/${targetUserId}`);
+            setUserPosts(data.posts);
+            setUserReels(data.reels);
+        } catch (error) {
+            console.error("Error fetching profile posts:", error);
+        }
+    }
+
     useEffect(() => {
-        fetchPosts();
-    }, []);
+        if (user) {
+            fetchHomeFeed();
+            fetchReelFeed();
+        }
+    }, [user]);
 
     async function addPost(formData, setFile, setCaption, setFileType, setPreview) {
         try {
@@ -34,7 +59,7 @@ export const PostContextProvider = ({ children }) => {
                 }
                 toast.success(data.message);
 
-                fetchPosts();
+                fetchHomeFeed();
                 setFile(null);
                 setCaption("");
                 setFileType(null);
@@ -53,13 +78,14 @@ export const PostContextProvider = ({ children }) => {
 
             setPosts(prev => updateList(prev));
             setReels(prev => updateList(prev));
-            
+            setUserPosts(prev => updateList(prev));
+            setUserReels(prev => updateList(prev));
         } catch (err) {
             console.error(err);
         }
     }
 
-    return <PostContext.Provider value={{ posts, reels, addPost, toggleLike }}>{children}</PostContext.Provider>
+    return <PostContext.Provider value={{ posts, reels, userPosts, userReels, fetchHomeFeed, fetchUserPosts, fetchUserPosts, addPost, toggleLike }}>{children}</PostContext.Provider>
 }
 
-export const postData = () => useContext(PostContext);
+export const PostData = () => useContext(PostContext);

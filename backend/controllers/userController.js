@@ -27,14 +27,16 @@ export const followAndUnfollow = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(400).json({ message: "User not found" });
-        const loggedInUser = await User.findById(req.user._id);
-        if (user._id.toString() === loggedInUser._id.toString()) return res.status(400).json({ message: "you cant follow yourself" });
 
+        const loggedInUser = await User.findById(req.user._id);
+        if (user._id.toString() === loggedInUser._id.toString()) { 
+            return res.status(400).json({ message: "you cant follow yourself" });
+        }
         if (user.followers.includes(loggedInUser._id)) {
-            const indexOfFollowing = loggedInUser.following.indexOf(user._id);
+            const indexOfFollowing = loggedInUser.followings.indexOf(user._id);
             const indexOfFollower = user.followers.indexOf(loggedInUser._id);
 
-            loggedInUser.following.splice(indexOfFollowing, 1);
+            loggedInUser.followings.splice(indexOfFollowing, 1);
             user.followers.splice(indexOfFollower, 1);
 
             await loggedInUser.save();
@@ -42,7 +44,7 @@ export const followAndUnfollow = async (req, res) => {
             res.json({ message: "User unfollowed" });
 
         } else {
-            loggedInUser.following.push(user._id);
+            loggedInUser.followings.push(user._id);
             user.followers.push(loggedInUser._id);
 
             await loggedInUser.save();
