@@ -8,6 +8,7 @@ export const UserContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
 
     useEffect(() => {
         axios.get('/api/user/me')
@@ -30,7 +31,7 @@ export const UserContextProvider = ({ children }) => {
         }
     }
 
-    async function LoginUser(email, password, navigate) {
+    async function LoginUser (email, password, navigate) {
         setIsSubmitting(true);
         try {
             const { data } = await axios.post('/api/auth/login', { email, password, navigate });
@@ -44,7 +45,7 @@ export const UserContextProvider = ({ children }) => {
         }
     }
 
-    async function LogoutUser(navigate) {
+    async function LogoutUser (navigate) {
         try {
             const { data } = await axios.get('/api/auth/logout');
             if (data.message) {
@@ -57,7 +58,36 @@ export const UserContextProvider = ({ children }) => {
         }
     }
 
-    return <UserContext.Provider value={{ RegisterUser, LoginUser, user, loading, isSubmitting, LogoutUser }}>{children}<Toaster position="top-right"/></UserContext.Provider>
+    async function searchUsers (query) {
+        if (!query || !query.trim('')) {
+            setSearchResults([]);
+            return;
+        }
+        
+        try {
+            const { data } = await axios.get(`/api/user/search?query=${query}`);
+            setSearchResults(data.users);
+        } catch (error) {
+            console.error("Error searching users:", error);
+        }
+    }
+
+    async function toggleFollow (id, setViewedUser) {
+        try {
+            const { data } = await axios.post(`/api/user/follow/${id}`);
+            toast.success(data.message);
+
+            setUser(data.currentUser);
+
+            if (setViewedUser) {
+                setViewedUser(data.updatedUser);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Action failed");
+        }
+    }
+
+    return <UserContext.Provider value={{ RegisterUser, LoginUser, user, loading, isSubmitting, LogoutUser, searchResults, searchUsers, toggleFollow }}>{children}<Toaster position="top-right"/></UserContext.Provider>
 }
 
 export const UserData = () => useContext(UserContext);

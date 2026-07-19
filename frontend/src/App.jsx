@@ -7,6 +7,8 @@ import { Account } from './pages/Account';
 import { NavigationBar } from './components/NavigationBar';
 import { NotFound } from './components/NotFound';
 import { Reels } from './pages/Reels';
+import { Search } from './pages/Search';
+import { UserProfile } from './components/UserProfile';
 
 const App = () => {
   const { user, loading } = UserData();
@@ -20,9 +22,11 @@ const App = () => {
           <Routes>
             <Route path='/' element={<Home user={user} />} />
             <Route path='/reels' element={<Reels />} />
+            <Route path='/search' element={<Search />} />
             <Route path='/login' element={user ? <Navigate to="/" replace /> : <Login />} />
             <Route path='/register' element={user ? <Navigate to="/" replace /> : <Register />} />
             <Route path='/account' element={user ? <Account user={user} /> : <Navigate to="/login" replace />} />
+            <Route path='/profile/:id' element={user ? <UserProfile /> : <Navigate to="/login" replace />} />
             <Route path='*' element={<NotFound />} />
           </Routes>
         </div>

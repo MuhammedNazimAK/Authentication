@@ -1,12 +1,13 @@
 import express from 'express';
 import { isAuth } from '../middleware/isAuth.js';
-import { followAndUnfollow, followersAndFollowingsData, getAllUsers, myProfile, updatePassword, updateProfile, userProfile } from '../controllers/userController.js';
+import { followAndUnfollow, followersAndFollowingsData, getAllUsers, myProfile, searchUsers, updatePassword, updateProfile, userProfile } from '../controllers/userController.js';
 import uploadFile from '../middleware/multer.js';
 
 const router = express.Router();
 
 router.get('/me', isAuth, myProfile);
 router.get("/allusers", isAuth, getAllUsers);
+router.get("/search", isAuth, searchUsers);
 router.get('/:id', isAuth, userProfile);
 router.post('/:id', isAuth, updatePassword);
 router.put('/:id', isAuth, uploadFile, updateProfile);

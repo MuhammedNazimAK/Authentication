@@ -1,4 +1,5 @@
 import { Post } from "../models/postModel.js";
+import { User } from "../models/userModel.js";
 import cloudinary from 'cloudinary';
 import getDataUrl from "../utils/urlGenerator.js";
 

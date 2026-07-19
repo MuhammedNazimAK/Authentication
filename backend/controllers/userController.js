@@ -41,7 +41,11 @@ export const followAndUnfollow = async (req, res) => {
 
             await loggedInUser.save();
             await user.save();
-            res.json({ message: "User unfollowed" });
+            return res.json({
+                message: "User unfollowed",
+                updatedUser: user,
+                currentUser: loggedInUser
+            });
 
         } else {
             loggedInUser.followings.push(user._id);
@@ -49,7 +53,11 @@ export const followAndUnfollow = async (req, res) => {
 
             await loggedInUser.save();
             await user.save();
-            res.json({ message: "User followed" });
+            res.json({ 
+                message: user.followers.includes(loggedInUser._id) ? "User followed" : "User unfollowed",
+                updatedUser: user,
+                currentUser: loggedInUser
+            });
         }
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -122,6 +130,22 @@ export const getAllUsers = async (req, res) => {
             name: { $regex: searchQuery, $options: "i"},
         }).select("-password");
         res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const searchUsers = async (req, res) => {
+    try {
+        const { query } = req.query;
+        if (!query || !query.trim()) {
+            return res.status(200).json({ users: [] });
+        }
+        
+        const users = await User.find({ name: { $regex: query, $options: "i" } })
+        .select("-password").limit(10);
+    
+        res.json({ users });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

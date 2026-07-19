@@ -4,12 +4,9 @@ import { UserData } from "../context/UserContext";
 import { PostData } from "../context/PostContext";
  
 export const Account = ({ user }) => {
-
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("posts");
   const { userPosts, userReels, fetchUserPosts } = PostData();
-
-  const navigate = useNavigate();
-
   const { LogoutUser } = UserData();
 
   const logoutHandler = () => {
@@ -19,6 +16,8 @@ export const Account = ({ user }) => {
   useEffect(() => {
     if (user?._id) fetchUserPosts(user._id);
   }, [user?._id]);
+
+  if (!user) return null;
 
   return (
   <div className="min-h-screen bg-bg pt-14 md:pt-0">

@@ -46,7 +46,7 @@ export const Register = () => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
           <div className="flex justify-center mb-2">
-            <label htmlFor="profilePic" className="w-[76px] h-[76px] rounded-full border border-border bg-surface flex items-center justify-center overflow-hidden cursor-pointer">
+            <label htmlFor="profilePic" className="w-19 h-19 rounded-full border border-border bg-surface flex items-center justify-center overflow-hidden cursor-pointer">
               {preview ? (
                 <img src={preview} alt="preview" className="w-full h-full object-cover" />
               ) : (
