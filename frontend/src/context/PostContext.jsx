@@ -6,12 +6,11 @@ import { UserData } from "./UserContext";
 const PostContext = createContext();
 
 export const PostContextProvider = ({ children }) => {
-
     const [posts, setPosts] = useState([]);
     const [reels, setReels] = useState([]);
     const [userPosts, setUserPosts] = useState([]);
     const [userReels, setUserReels] = useState([]);
-    
+
     const { user } = UserData();
 
     async function fetchHomeFeed() {
@@ -42,6 +41,18 @@ export const PostContextProvider = ({ children }) => {
         }
     }
 
+    async function updatePost(updatePost) {
+        const update = list => 
+            list.map(post => 
+                post._id === updatePost._id ? updatePost : post
+            );
+            
+        setPosts(prev => update(prev));
+        setReels(prev => update(prev));
+        setUserPosts(prev => update(prev));
+        setUserReels(prev => update(prev));
+    }
+
     useEffect(() => {
         if (user) {
             fetchHomeFeed();
@@ -59,7 +70,6 @@ export const PostContextProvider = ({ children }) => {
                 }
                 toast.success(data.message);
 
-                fetchHomeFeed();
                 setFile(null);
                 setCaption("");
                 setFileType(null);
@@ -73,21 +83,25 @@ export const PostContextProvider = ({ children }) => {
     async function toggleLike(id) {
         try {
             const { data: updatedPost } = await axios.post(`/api/post/${id}/like`);
-
-            const updateList = (list) => list.map(item => item._id === id ? updatedPost : item);
-
-            setPosts(prev => updateList(prev));
-            setReels(prev => updateList(prev));
-            setUserPosts(prev => updateList(prev));
-            setUserReels(prev => updateList(prev));
+            updatePost(updatedPost);
         } catch (err) {
             console.error(err);
         }
     }
 
-    
+    async function addComment (id, comment, setComment) {
+        try {
+            const  { data } = await axios.post(`/api/post/comment/${id}`, {
+                comment
+            });
+            updatePost(data.updatedPost);
+            setComment("");
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    }
 
-    return <PostContext.Provider value={{ posts, reels, userPosts, userReels, fetchHomeFeed, fetchUserPosts, fetchUserPosts, addPost, toggleLike }}>{children}</PostContext.Provider>
+    return <PostContext.Provider value={{ posts, reels, userPosts, userReels, fetchHomeFeed, fetchUserPosts, fetchUserPosts, addPost, toggleLike, addComment }}>{children}</PostContext.Provider>
 }
 
 export const PostData = () => useContext(PostContext);

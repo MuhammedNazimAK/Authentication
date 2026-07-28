@@ -9,6 +9,7 @@ export const createPost = async (req, res) => {
         const { caption, type } = req.body;
 
         const file = req.file;
+        if (!file) return res.status(400).json({ message: "Video or Image file is required" });
         const fileUrl = getDataUrl(file);
         
         let option = {};
@@ -18,8 +19,6 @@ export const createPost = async (req, res) => {
                 resource_type: "video",
             };
         }
-
-        console.log("type", type)
 
         const cloud = await cloudinary.v2.uploader.upload(fileUrl.content, {
             folder: "Core social",
@@ -36,7 +35,9 @@ export const createPost = async (req, res) => {
             type,
         })
 
-        res.status(201).json({ message: "Post created", newPost: post });
+        const populatedPost = await Post.findById(post._id).populate("owner", "-password");
+
+        res.status(201).json({ message: "Post created", newPost: populatedPost });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -83,11 +84,11 @@ export const homeFeed = async (req, res) => {
 
         const followingFeed = await Post.find({ owner: { $in: followingIds } })
             .sort({ createdAt: -1 })
-            .populate("owner", "-password");
+            .populate("owner", "-password").populate("comments.user", "name profilePic");
 
         const otherFeed = await Post.find({ owner: { $nin: [...followingIds, currentUserId] } })
             .sort({ createdAt: -1 })
-            .populate("owner", "-password");
+            .populate("owner", "-password").populate("comments.user", "name profilePic");
 
         res.json({ posts: [...followingFeed, ...otherFeed] });
     } catch (error) {
@@ -147,12 +148,16 @@ export const commentOnPost = async (req, res) => {
 
         post.comments.push({
             user: req.user._id,
-            name: req.user.name,
             comment: req.body.comment,
         });
 
         await post.save();
-        res.json({ message: "Comment added" });
+        const updatedPost = await Post.findById(post._id).populate("owner", "-password").populate("comments.user", "name profilePic");
+        
+        res.status(200).json({
+            message: "Comment added",
+            updatedPost
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

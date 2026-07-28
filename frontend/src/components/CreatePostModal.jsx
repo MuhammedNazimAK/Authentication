@@ -28,6 +28,8 @@ export const CreatePostModal = ({ onClose }) => {
           setPreview(URL.createObjectURL(selectedFile));
     }
 
+    const captionError = caption.length > 200 ? 'Caption cannot exceed 200 characters' : null;
+
     const submitHandler = async (e) => {
       e.preventDefault();
 
@@ -54,7 +56,7 @@ export const CreatePostModal = ({ onClose }) => {
           <span className="text-sm font-medium tracking-wide">Create New Post</span>
           <button
              type="submit"
-             disabled={!file || isSubmitting}
+             disabled={captionError || !file || isSubmitting}
              className="w-20 text-right text-xs uppercase tracking-widest text-text font-bold disabled:opacity-30 cursor-pointer"
           >
             {isSubmitting ? "Sharing..." : "Share"}
@@ -87,6 +89,7 @@ export const CreatePostModal = ({ onClose }) => {
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
               />
+              {captionError && <p className="text-red-500 text-center font-medium">{captionError}</p>}
             </>
           )}
         </div>
