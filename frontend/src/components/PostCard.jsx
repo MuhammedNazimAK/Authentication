@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { HeartIcon, CommentIcon, SaveIcon } from "./icons";
 import { AutoPlayVideo } from "./AutoPlayVideo";
 import { PostData } from "../context/PostContext";
 import { UserData } from "../context/UserContext";
+import { formatDistanceToNow, parseISO } from "date-fns"
 
 export const PostCard = ({ post, currentUser }) => {
   const navigate = useNavigate();
@@ -29,11 +30,13 @@ export const PostCard = ({ post, currentUser }) => {
   };
 
   const isOwnPost = currentUser === post.user;
+  console.log("time", post.createdAt)
+  const formatDate = formatDistanceToNow(parseISO(post.createdAt), { addSuffix: true });
 
   return (
     <>
       <article className="bg-bg border-b border-border">
-        <PostHeader user={post.owner?.name} avatar={post.owner?.profilePic?.url} isOwn={isOwnPost} />
+        <PostHeader id={post.owner?._id} user={post.owner?.name} avatar={post.owner?.profilePic?.url} isOwn={isOwnPost} isCreatedAt={formatDate} />
 
         <div className="aspect-square w-full bg-surface overflow-hidden"
           onClick={handleMediaClick}
@@ -114,25 +117,7 @@ function PostModal({ post, onClose, type }) {
       await addComment(post._id, comment, setComment);
     }
 
-    const videoRef = useRef(null);
     const hasComment = comment.trim().length > 0;
-
-    function timeAgo(date) {
-      const seconds = Math.floor(
-          (new Date() - new Date(date)) / 1000
-      );
-
-      if (seconds < 60) return "just now";
-
-      const minutes = Math.floor(seconds / 60);
-      if (minutes < 60) return `${minutes}m ago`;
-
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return `${hours}h ago`;
-
-      const days = Math.floor(hours / 24);
-      return `${days}d ago`;
-  }
   
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
@@ -173,14 +158,14 @@ function PostModal({ post, onClose, type }) {
         {post.type ? (
           <div className="flex flex-col flex-1 min-h-0">
             <div className="px-4 py-3 border-b border-border flex items-center gap-2.5">
-              <Avatar avatar={post.owner?.profilePic?.url} user={post.owner?.name} size="sm" />
+              <Avatar id={post.owner?._id} avatar={post.owner?.profilePic?.url} user={post.owner?.name} size="sm" />
               <span className="text-[0.78rem] font-medium text-text tracking-wide">{post.owner?.name}</span>
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-6">
               {post.caption && (
                 <div className="flex gap-2.5">
-                  <Avatar avatar={post.owner?.profilePic?.url} user={post.owner?.name} size="sm" />
+                  <Avatar id={post.owner?._id} avatar={post.owner?.profilePic?.url} user={post.owner?.name} size="sm" />
                   <div>
                     <p className="text-[0.78rem] text-text leading-relaxed">
                       <span className="font-medium">{post.owner?.name}</span>{" "}
@@ -193,13 +178,15 @@ function PostModal({ post, onClose, type }) {
 
               {post.comments.map((c) => (
                 <div key={c.id} className="flex gap-2.5">
-                  <Avatar avatar={c.user?.profilePic?.url} user={c.user?.user} size="sm" />
+                  <Avatar id={c.user?._id} avatar={c.user?.profilePic?.url} user={c.user?.user} size="sm" />
                   <div>
                     <p className="text-[0.78rem] text-text leading-relaxed">
-                      <span className="font-medium">{c.user?.name}</span>{" "}
+                      <Link to={`/profile/${c.user?._id}`}>
+                        <span className="font-medium">{c.user?.name}</span>{" "}
+                      </Link>
                       <span className="text-muted">{c.comment}</span>
                     </p>
-                    <span className="text-[0.62rem] tracking-[0.08em] text-subtle mt-0.5 block">{timeAgo(c.createdAt)}</span>
+                    <span className="text-[0.62rem] tracking-[0.08em] text-subtle mt-0.5 block">{formatDistanceToNow(parseISO(c.createdAt), { addSuffix: true })}</span>
                   </div>
                 </div>
               ))}
@@ -241,14 +228,18 @@ function PostModal({ post, onClose, type }) {
   );
 }
 
-function PostHeader({ user, avatar, isOwn }) {
+function PostHeader({ user, avatar, isOwn, isCreatedAt, id }) {
   return (
     <div className="flex items-center justify-between px-3 py-2.5">
       <div className="flex items-center gap-2.5">
-        <Avatar avatar={avatar} user={user} />
+        <Avatar id={id} avatar={avatar} user={user} />
         <div className="flex flex-col">
-          <span className="text-[0.78rem] font-medium text-text tracking-wide leading-tight">{user}</span>
+          <Link to={`/profile/${id}`}>
+            <span className="text-[0.78rem] font-medium text-text tracking-wide leading-tight">{user}</span>
+          </Link>
         </div>
+        <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
+        <span className="text-[0.62rem] tracking-[0.08em] text-subtle mt-0.5 block">{isCreatedAt}</span>
       </div>
       <div className="flex items-center gap-2">
         {!isOwn && (
@@ -264,13 +255,15 @@ function PostHeader({ user, avatar, isOwn }) {
   );
 }
 
-function Avatar({ avatar, user, size = "md", dark = false }) {
+function Avatar({ avatar, user, size = "md", dark = false, id }) {
   const dim = size === "sm" ? "w-7 h-7" : "w-8 h-8";
   const text = size === "sm" ? "text-[0.5rem]" : "text-[0.55rem]";
   return (
     <div className={`${dim} rounded-full ${dark ? "bg-surface border-white/20" : "bg-bg border-border"} border overflow-hidden shrink-0`}>
       {avatar ? (
+        <Link to={`/profile/${id}`}>
         <img src={avatar} alt={user} className="w-full h-full object-cover" />
+        </Link>
       ) : (
         <div className="w-full h-full flex items-center justify-center">
           <span className={`${text} tracking-widest uppercase ${dark ? "text-white/50" : "text-subtle"}`}>{user?.[0]}</span>

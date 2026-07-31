@@ -3,6 +3,8 @@ import { HeartIcon, CommentIcon, SaveIcon } from "../components/icons";
 import { PostData } from "../context/PostContext";
 import { UserData } from "../context/UserContext";
 import { AutoPlayVideo } from "../components/AutoPlayVideo";
+import { Link } from "react-router-dom";
+import { formatDistanceToNow, parseISO } from "date-fns"
 
 export const Reels = () => {
   const { reels, toggleLike } = PostData();
@@ -10,6 +12,7 @@ export const Reels = () => {
 
   const [current, setCurrent] = useState(0);
   const containerRef = useRef(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const reel = reels[current];
   const isLiked = reel?.likes?.includes(user?._id);
@@ -41,7 +44,7 @@ export const Reels = () => {
         <NavButton onClick={goDown} disabled={current === reels.length - 1} direction="down" />
       </div>
 
-      <div className="flex flex-row items-end gap-6 h-full md:h-[90vh]">
+      <div className="relative flex flex-row items-end gap-6 h-full md:h-[90vh]">
         <div
           ref={containerRef}
           onScroll={handleScroll}
@@ -63,9 +66,11 @@ export const Reels = () => {
                 </div>
               )}
               <div className="absolute bottom-9 left-5 z-10 flex flex-col gap-1 max-w-[calc(100%-5rem)]">
-              <span className="text-sm font-medium text-text drop-shadow-md">
-                @{r?.owner?.name}
-              </span>
+                <Link to={`/profile/${r.owner?._id}`}>
+                  <span className="text-sm font-medium text-text drop-shadow-md">
+                    @{r?.owner?.name}
+                  </span>
+                </Link>
               {r?.caption && (
                 <p className="text-[0.8rem] text-text leading-relaxed drop-shadow-md line-clamp-3">
                   <span className="font-medium tracking-wide">{r.caption}</span>
@@ -77,20 +82,103 @@ export const Reels = () => {
 
           <div className="absolute right-4 bottom-[env(safe-area-inset-bottom)] flex flex-col gap-6 md:hidden z-10">
             <ActionButton onClick={() => handleLike(reel._id)} count={reel?.likes?.length || 0} active={isLiked} icon={<HeartIcon filled={isLiked} isMobile />} />
-            <ActionButton count={reel?.comments?.length || 0} icon={<CommentIcon isMobile />} />
+            <ActionButton onClick={() => setModalOpen(true)} count={reel?.comments?.length || 0} icon={<CommentIcon isMobile />} />
             <ActionButton active={reel?.saved} icon={<SaveIcon filled={reel?.saved} isMobile />} />
           </div>
         </div>
 
         <div className="hidden md:flex flex-col gap-8 pb-4">
           <ActionButton onClick={() => handleLike(reel._id)} count={reel?.likes?.length || 0} active={isLiked} icon={<HeartIcon filled={isLiked} />} label="likes" />
-          <ActionButton count={reel?.comments?.length || 0} icon={<CommentIcon />} label="comments" />
+          <ActionButton onClick={() => setModalOpen(true)} count={reel?.comments?.length || 0} icon={<CommentIcon />} label="comments" />
           <ActionButton active={reel?.saved} icon={<SaveIcon filled={reel?.saved} />} label="save" />
         </div>
+
+        {modalOpen && (
+          <CommentModal reel={reel} onClose={() => setModalOpen(false)} />
+        )}
       </div>
     </div>
   );
 };
+
+function CommentModal({ reel, onClose }) {
+  const [comment, setComment] = useState("");
+  const { addComment } = PostData();
+
+  const handleAddComment = async () => {
+    await addComment(reel._id, comment, setComment);
+  }
+  const hasComment = comment.trim().length > 0;
+
+  return (
+    <>
+      <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={onClose} />
+      <div
+        className="
+          fixed inset-x-0 bottom-0 z-50 h-[70vh] rounded-t-2xl bg-surface border-t border-border flex flex-col overflow-hidden transition-all
+          md:absolute md:inset-auto md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:w-[400px] md:h-[60vh] md:rounded-xl md:border md:shadow-2xl
+          xl:left-full xl:translate-x-4 xl:w-[350px] xl:h-full
+        "
+      >
+        <div className="p-4 border-b border-border flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-text">Comments</h3>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-full bg-surface border border-border hover:bg-border cursor-pointer"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+          {reel?.comments?.map((c) => (
+            <div key={c._id || c.id} className="flex gap-2.5">
+              <Avatar
+                id={c.user?._id}
+                avatar={c.user?.profilePic?.url}
+                user={c.user?.name}
+                size="sm"
+              />
+              <div className="flex-1">
+                <p className="text-[0.78rem] text-text leading-relaxed">
+                  <Link to={`/profile/${c.user?._id}`}>
+                    <span className="font-medium mr-1.5">{c.user?.name}</span>
+                  </Link>
+                  <span className="text-muted">{c.comment}</span>
+                </p>
+                {c.createdAt && (
+                  <span className="text-[0.62rem] tracking-[0.08em] text-subtle mt-0.5 block">
+                    {formatDistanceToNow(parseISO(c.createdAt), { addSuffix: true })}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="px-4 py-3 border-t border-border flex items-center gap-3 bg-surface">
+          <input
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Add a comment…"
+            className="flex-1 bg-transparent text-[0.8rem] text-text placeholder:text-subtle outline-none"
+          />
+          <button
+            onClick={handleAddComment}
+            disabled={!hasComment}
+            className={`text-[0.7rem] tracking-widest uppercase font-medium transition-colors duration-200 ${
+              hasComment
+                ? "text-text cursor-pointer hover:underline"
+                : "text-muted opacity-50 cursor-not-allowed"
+            }`}
+          >
+            Post
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
 
 function ActionButton({ onClick, count, active, icon, label }) {
   return (
@@ -117,5 +205,31 @@ function NavButton({ onClick, disabled, direction }) {
         <path d={direction === "up" ? "M18 15l-6-6-6 6" : "M6 9l6 6 6-6"} />
       </svg>
     </button>
+  );
+}
+
+function Avatar({ avatar, user, size = "md", dark = false, id }) {
+  const dim = size === "sm" ? "w-7 h-7" : "w-8 h-8";
+  const text = size === "sm" ? "text-[0.5rem]" : "text-[0.55rem]";
+  return (
+    <div className={`${dim} rounded-full ${dark ? "bg-surface border-white/20" : "bg-bg border-border"} border overflow-hidden shrink-0`}>
+      {avatar ? (
+        <Link to={`/profile/${id}`}>
+        <img src={avatar} alt={user} className="w-full h-full object-cover" />
+        </Link>
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <span className={`${text} tracking-widest uppercase ${dark ? "text-white/50" : "text-subtle"}`}>{user?.[0]}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5F5F5" strokeWidth="2">
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
   );
 }
