@@ -66,11 +66,17 @@ export const followAndUnfollow = async (req, res) => {
 
 export const followersAndFollowingsData = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id).select("-password").populate("followers", "-password").populate("following", "-password");
-
-        const followers = user.followers;
-        const followings = user.following;
-        res.json({ followers, followings });
+        console.log("req body", req.query.type);
+        const { type } = req.query;
+        if (type === "followers") {
+            const user = await User.findById(req.params.id).select("-password").populate("followers", "-password");
+            const followers = user.followers;
+            res.json({ users: followers });
+        } else {
+            const user = await User.findById(req.params.id).select("-password").populate("followings", "-password");
+            const followings = user.followings;
+            res.json({ users: followings });
+        }
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

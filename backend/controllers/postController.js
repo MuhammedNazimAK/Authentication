@@ -67,8 +67,12 @@ export const deletePost = async (req, res) => {
 export const getUserPosts = async (req, res) => {
     try {
         const owner = req.params.userId;
-        const posts = await Post.find({ owner, type: "post" }).sort({ createdAt: -1 }).populate("owner", "-password");
-        const reels = await Post.find({ owner, type: "reel" }).sort({ createdAt: -1 }).populate("owner", "-password");
+        const posts = await Post.find({ owner, type: "post" }).sort({ createdAt: -1 })
+        .populate("owner", "-password")
+        .populate("comments.user", "name profilePic");
+        const reels = await Post.find({ owner, type: "reel" }).sort({ createdAt: -1 })
+        .populate("owner", "-password")
+        .populate("comments.user", "name profilePic");
 
         res.json({ posts, reels });
     } catch (error) {
@@ -80,17 +84,13 @@ export const homeFeed = async (req, res) => {
     try {
 
         const currentUserId = req.user._id;
-        const followingIds = req.user.followings || [];
 
-        const followingFeed = await Post.find({ owner: { $in: followingIds } })
+        const posts = await Post.find({ owner: { $ne: currentUserId } })
             .sort({ createdAt: -1 })
-            .populate("owner", "-password").populate("comments.user", "name profilePic");
+            .populate("owner", "-password")
+            .populate("comments.user", "name profilePic");
 
-        const otherFeed = await Post.find({ owner: { $nin: [...followingIds, currentUserId] } })
-            .sort({ createdAt: -1 })
-            .populate("owner", "-password").populate("comments.user", "name profilePic");
-
-        res.json({ posts: [...followingFeed, ...otherFeed] });
+        res.json({ posts });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -99,24 +99,16 @@ export const homeFeed = async (req, res) => {
 export const reelsFeed = async (req, res) => {
     try {
         const currentUserId = req.user._id;
-        const followingIds = req.user.followings || [];
 
-        const followingFeed = await Post.find({ 
-            owner: { $in: followingIds }, 
+        const reels = await Post.find({ 
+            owner: { $ne: currentUserId }, 
             type: "reel" 
         })
         .sort({ createdAt: -1 })
-        .populate("owner", "-password");
+        .populate("owner", "-password")
+        .populate("comments.user", "name profilePic");
 
-        const otherFeed = await Post.find({ 
-            owner: { $nin: [...followingIds, currentUserId] }, 
-            type: "reel" 
-        })
-        .sort({ createdAt: -1 })
-        .populate("owner", "-password");
-
-        res.json({ reels: [...followingFeed, ...otherFeed] });
-
+        res.json({ reels });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

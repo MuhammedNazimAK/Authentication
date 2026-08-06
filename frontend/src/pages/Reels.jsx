@@ -82,14 +82,14 @@ export const Reels = () => {
 
           <div className="absolute right-4 bottom-[env(safe-area-inset-bottom)] flex flex-col gap-6 md:hidden z-10">
             <ActionButton onClick={() => handleLike(reel._id)} count={reel?.likes?.length || 0} active={isLiked} icon={<HeartIcon filled={isLiked} isMobile />} />
-            <ActionButton onClick={() => setModalOpen(true)} count={reel?.comments?.length || 0} icon={<CommentIcon isMobile />} />
+            <ActionButton onClick={() => setModalOpen((prev) => !prev)} count={reel?.comments?.length || 0} icon={<CommentIcon isMobile />} />
             <ActionButton active={reel?.saved} icon={<SaveIcon filled={reel?.saved} isMobile />} />
           </div>
         </div>
 
         <div className="hidden md:flex flex-col gap-8 pb-4">
           <ActionButton onClick={() => handleLike(reel._id)} count={reel?.likes?.length || 0} active={isLiked} icon={<HeartIcon filled={isLiked} />} label="likes" />
-          <ActionButton onClick={() => setModalOpen(true)} count={reel?.comments?.length || 0} icon={<CommentIcon />} label="comments" />
+          <ActionButton onClick={() => setModalOpen((prev) => !prev)} count={reel?.comments?.length || 0} icon={<CommentIcon />} label="comments" />
           <ActionButton active={reel?.saved} icon={<SaveIcon filled={reel?.saved} />} label="save" />
         </div>
 
@@ -114,20 +114,18 @@ function CommentModal({ reel, onClose }) {
     <>
       <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={onClose} />
       <div
-        className="
-          fixed inset-x-0 bottom-0 z-50 h-[70vh] rounded-t-2xl bg-surface border-t border-border flex flex-col overflow-hidden transition-all
-          md:absolute md:inset-auto md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:w-[400px] md:h-[60vh] md:rounded-xl md:border md:shadow-2xl
-          xl:left-full xl:translate-x-4 xl:w-[350px] xl:h-full
-        "
+        className="fixed inset-x-0 bottom-0 z-50 h-[70vh] rounded-t-2xl bg-surface border-t border-border flex flex-col overflow-hidden transition-all
+                  md:absolute md:inset-x-auto md:top-auto md:bottom-0 md:translate-y-0 md:left-1/2 md:-translate-x-1/2 md:w-100 md:h-[70vh] md:rounded-t-xl md:border-x md:shadow-2xl
+                  xl:left-full xl:translate-x-4 xl:w-87.5 xl:h-[70vh] xl:rounded-xl xl:border"
       >
-        <div className="p-4 border-b border-border flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-text">Comments</h3>
+        <div className="relative p-4 border-b border-border flex items-center">
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-full bg-surface border border-border hover:bg-border cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded-full bg-surface border border-border hover:bg-border cursor-pointer z-10"
           >
             <CloseIcon />
           </button>
+          <h3 className="absolute inset-x-0 text-center text-sm font-semibold text-text">Comments</h3>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">

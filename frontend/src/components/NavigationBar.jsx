@@ -152,9 +152,11 @@ export const NavigationBar = () => {
         <nav className="flex flex-col gap-1">
           {navItems.map(({ label, to, icon, isButton }) => {
             const active = pathname === to;
-            const commonClass = `flex items-center gap-4 px-3 py-3 rounded-md text-sm tracking-wide transition-colors duration-150 cursor-pointer ${
-              active ? "text-text font-medium bg-bg" : "text-text hover:bg-surface/50"
-            }`;
+            const commonClass = `flex items-center gap-4 px-3 py-3 rounded-lg text-sm tracking-wide transition-all duration-150 cursor-pointer ${
+                active 
+                  ? "text-text font-bold bg-surface border-l-2 border-text pl-2.5" 
+                  : "text-muted hover:text-text hover:bg-surface/50"
+              }`;
 
             if (isButton) {
               return (
@@ -206,8 +208,9 @@ export const NavigationBar = () => {
               <Link
                 key={to}
                 to={to}
-                className={`flex flex-col items-center gap-1 transition-colors duration-150
-                  ${active ? "text-text" : "text-subtle"}`}
+                className={`flex flex-col items-center gap-1 transition-colors duration-150 ${
+                  active ? "text-text font-bold" : "text-subtle hover:text-text"
+                }`}
               >
                 {icon}
                 <span className="text-[0.6rem] tracking-widest uppercase">{label}</span>

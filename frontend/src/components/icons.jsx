@@ -21,3 +21,19 @@ export const SaveIcon = ({ filled, isMobile }) => {
     </svg>
   );
 }
+
+export const CloseIcon = () => {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5F5F5" strokeWidth="2">
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
+export const MoreIcon = () => {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="#99968F">
+      <circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" />
+    </svg>
+  );
+}
