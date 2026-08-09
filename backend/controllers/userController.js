@@ -66,7 +66,6 @@ export const followAndUnfollow = async (req, res) => {
 
 export const followersAndFollowingsData = async (req, res) => {
     try {
-        console.log("req body", req.query.type);
         const { type } = req.query;
         if (type === "followers") {
             const user = await User.findById(req.params.id).select("-password").populate("followers", "-password");

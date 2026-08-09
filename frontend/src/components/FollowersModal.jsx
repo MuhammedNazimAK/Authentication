@@ -22,9 +22,6 @@ export const FollowersModal = ({ isOpen, onClose, userId, type }) => {
     }, [isOpen, userId, type]);
 
     if (!isOpen) return null;
-
-    console.log("data", data);
-
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 background-blur-xs p-4" onClick={onClose}>
             <div className="w-full max-w-sm bg-bg border border-border rounded-lg overflow-hidden flex flex-col max-h-[70vh]">

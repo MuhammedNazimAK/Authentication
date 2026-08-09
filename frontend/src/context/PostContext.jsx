@@ -101,7 +101,21 @@ export const PostContextProvider = ({ children }) => {
         }
     }
 
-    return <PostContext.Provider value={{ posts, reels, userPosts, userReels, fetchHomeFeed, fetchUserPosts, fetchUserPosts, addPost, toggleLike, addComment }}>{children}</PostContext.Provider>
+    async function deletePost(id, onClose) {
+        try {
+            const { data } = await axios.delete(`/api/post/${id}`);
+            setPosts(prev => prev.filter(p => p._id !== id));
+            setReels(prev => prev.filter(r => r._id !== id));
+            setUserPosts(prev => prev.filter(p => p._id !== id));
+            setUserReels(prev => prev.filter(r => r._id !== id));
+            toast.success(data.message);
+            if (onClose) onClose();
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    }
+
+    return <PostContext.Provider value={{ posts, reels, userPosts, userReels, fetchHomeFeed, fetchUserPosts, fetchUserPosts, addPost, toggleLike, addComment, deletePost }}>{children}</PostContext.Provider>
 }
 
 export const PostData = () => useContext(PostContext);

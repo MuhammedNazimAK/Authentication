@@ -57,7 +57,6 @@ export const deletePost = async (req, res) => {
             resource_type: resourceType
         });
         await post.deleteOne();
-
         res.json({ message: "Post deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });

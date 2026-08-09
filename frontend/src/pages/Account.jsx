@@ -29,6 +29,10 @@ export const Account = ({ user }) => {
     setType(type);
   }
 
+  const handlePostDelete = () => {
+    deletePost()
+  }
+
   const logoutHandler = () => {
     LogoutUser(navigate);
   };

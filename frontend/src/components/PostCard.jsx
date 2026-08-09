@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { HeartIcon, CommentIcon, SaveIcon } from "./icons";
+import { HeartIcon, CommentIcon, SaveIcon, MoreIcon } from "./icons";
 import { AutoPlayVideo } from "./AutoPlayVideo";
 import { PostData } from "../context/PostContext";
 import { UserData } from "../context/UserContext";
@@ -136,7 +136,7 @@ function PostHeader({ user, avatar, isOwn, isCreatedAt, id, isFollowing }) {
           </button>
         )}
         {isOwn && (
-          <button className="p-1 cursor-pointer">
+          <button className="p-1 cursor-pointer hover:stroke-surface transition">
             <MoreIcon />
           </button>
         )}
