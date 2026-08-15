@@ -9,7 +9,9 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <UserContextProvider>
       <PostContextProvider>
-        <App />
+        <ChatContextProvider>
+          <App />
+        </ChatContextProvider>
       </PostContextProvider>
     </UserContextProvider>
   </StrictMode>,

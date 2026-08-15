@@ -87,7 +87,26 @@ export const UserContextProvider = ({ children }) => {
         }
     }
 
-    return <UserContext.Provider value={{ RegisterUser, LoginUser, user, loading, isSubmitting, LogoutUser, searchResults, searchUsers, toggleFollow }}>{children}<Toaster position="top-right"/></UserContext.Provider>
+    async function updateProfile(id, formData) {
+        try {
+            const { data } = await axios.put(`/api/user/profile/${id}`, formData);
+            toast.success(data.message);
+            if (data.user) setUser(data.user);
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    }
+
+    async function updatePassword(id, passwords) {
+        try {
+            const { data } = await axios.post(`/api/user/password/${id}`, passwords);
+            toast.success(data.message);
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    }
+
+    return <UserContext.Provider value={{ RegisterUser, LoginUser, user, loading, isSubmitting, LogoutUser, searchResults, searchUsers, toggleFollow, updateProfile, updatePassword }}>{children}<Toaster position="top-right"/></UserContext.Provider>
 }
 
 export const UserData = () => useContext(UserContext);

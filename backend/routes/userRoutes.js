@@ -9,8 +9,8 @@ router.get('/me', isAuth, myProfile);
 router.get("/allusers", isAuth, getAllUsers);
 router.get("/search", isAuth, searchUsers);
 router.get('/:id', isAuth, userProfile);
-router.post('/:id', isAuth, updatePassword);
-router.put('/:id', isAuth, uploadFile, updateProfile);
+router.put('/profile/:id', isAuth, uploadFile, updateProfile);
+router.post('/password/:id', isAuth, updatePassword);
 router.post("/follow/:id", isAuth, followAndUnfollow);
 router.get("/followdata/:id", isAuth, followersAndFollowingsData);
 

@@ -84,10 +84,9 @@ export const followersAndFollowingsData = async (req, res) => {
 export const updateProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
-        const { name } = req.body;
-        if (name) {
-            user.name = name
-        }
+        const { name, gender } = req.body;
+        if (name) user.name = name;
+        if (gender) user.gender = gender;
 
         const file = req.file;
         if (file) {
@@ -98,13 +97,13 @@ export const updateProfile = async (req, res) => {
                 folder: "Core social"
             });
 
-            user.profilePic.id = cloud.public_id;
-            user.profilePic.url = cloud.secure_url;
+            user.profilePic = {
+                id: cloud.public_id,
+                url: cloud.secure_url
+            };
         }
-
         await user.save();
-
-        res.json({ message: "profile updated" });
+        res.json({ message: "Profile updated", user });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -119,7 +118,6 @@ export const updatePassword = async (req, res) => {
         if (!comparePassword) return res.status(400).json({ message: "Wrong old password" });
 
         user.password = await bcrypt.hash(newPassword, 10);
-
         await user.save();
         res.json({ message: "Password changed" });
     } catch (error) {
