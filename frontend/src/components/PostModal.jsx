@@ -9,15 +9,18 @@ import { Dropdown } from "./Dropdown";
 export const PostModal = ({ post, onClose, type, user  }) => {
     const navigate = useNavigate();
     const [comment, setComment] = useState("");
-    const { addComment } = PostData();
+    const { addComment, deleteComment } = PostData();
     const [isOpen, setIsOpen] = useState(false);
 
     const handleAddComment = async () => {
       await addComment(post._id, comment, setComment);
     }
+    const handleRemoveComment = async (comment) => {
+      await deleteComment(post._id, comment._id);
+    }
+    
     const hasComment = comment.trim().length > 0;
     const isOwn = user._id === post.owner._id;
-    console.log("post", post._id);
   
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
@@ -31,7 +34,7 @@ export const PostModal = ({ post, onClose, type, user  }) => {
             <button onClick={() => setIsOpen(prev => !prev)} className="absolute top-3 right-3 z-10 w-9 h-9 items-center justify-center hover:stroke-surface transition cursor-pointer hidden md:flex">
             <MoreIcon />
           </button>
-          <Dropdown isOpen={isOpen} setIsOpen={setIsOpen} postId={post._id} onClose={onClose} />
+          <Dropdown isOpen={isOpen} setIsOpen={setIsOpen} postId={post._id} onClose={onClose} post={post} />
           </>
         )}
           <div className="hidden md:block md:w-[70%] bg-black">
@@ -94,8 +97,8 @@ export const PostModal = ({ post, onClose, type, user  }) => {
                       </p>
                       <span className="text-[0.62rem] tracking-[0.08em] text-subtle mt-0.5 block">{formatDistanceToNow(parseISO(c.createdAt), { addSuffix: true })}</span>
                     </div>
-                      {c?.user?._id === user._id && (
-                        <button className="text-red-500 hover:opacity-60 transition-opacity cursor-pointer">
+                      {(c?.user?._id === user._id || post?.owner?._id === user._id) && (
+                        <button onClick={() => handleRemoveComment(c)} className="text-red-500 hover:opacity-60 transition-opacity cursor-pointer">
                           <Trash2 size="20px" />
                         </button>
                       )}
@@ -135,6 +138,7 @@ export const PostModal = ({ post, onClose, type, user  }) => {
           </div>
         )}
       </div>
+      {}
     </div>
   );
 }

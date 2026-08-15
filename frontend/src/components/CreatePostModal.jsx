@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { PostData } from "../context/PostContext";
 
-export const CreatePostModal = ({ onClose }) => {
+export const CreatePostModal = ({ onClose, initialData }) => {
+  const isEditMode = Boolean(initialData?._id);
   const [file, setFile] = useState(null);
-  const [fileType, setFileType] = useState(null);
-  const [caption, setCaption] = useState("");
+  const [fileType, setFileType] = useState(initialData?.type ? initialData.type === "reel" ? "video" : "image" : null);
+  const [caption, setCaption] = useState(initialData?.caption ||  "");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [preview, setPreview] = useState(null);
-  const { addPost } = PostData();
+  const [preview, setPreview] = useState(initialData?.post?.url || null);
+  const { addPost, editCaption } = PostData();
 
   useEffect(() => {
     return () => {
@@ -32,12 +33,20 @@ export const CreatePostModal = ({ onClose }) => {
 
     const submitHandler = async (e) => {
       e.preventDefault();
-
-      if (!file) return toast.error("Please select a file to upload.");
-      const type = file.type.startsWith('video') ? 'reel' : 'post';
+      if (isEditMode) {
+        setIsSubmitting(true)
+        await editCaption(initialData._id, caption);
+        setIsSubmitting(false);
+        onClose();
+        return;
+      }
+      if (!file && !preview) return toast.error("Please select a file to upload.");
+      const type = file ? file.type.startsWith('video') ? 'reel' : 'post' : initialData?.type;
 
       const formData = new FormData();
-      formData.append("file", file);
+      if (file) {
+        formData.append("file", file);
+      }
       formData.append("caption", caption);
       formData.append("type", type);
 
@@ -53,10 +62,10 @@ export const CreatePostModal = ({ onClose }) => {
         
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <button onClick={onClose} className="w-20 text-left text-xs uppercase tracking-widest text-subtle cursor-pointer">Cancel</button>
-          <span className="text-sm font-medium tracking-wide">Create New Post</span>
+          <span className="text-sm font-medium tracking-wide">{isEditMode ? "Edit Post" : "Create New Post"}</span>
           <button
              type="submit"
-             disabled={captionError || !file || isSubmitting}
+             disabled={captionError || (!isEditMode && !file && !preview) || caption === initialData?.caption || isSubmitting}
              className="w-20 text-right text-xs uppercase tracking-widest text-text font-bold disabled:opacity-30 cursor-pointer"
           >
             {isSubmitting ? "Sharing..." : "Share"}
@@ -64,7 +73,7 @@ export const CreatePostModal = ({ onClose }) => {
         </div>
 
         <div className="flex flex-col min-h-0 flex-1">
-          {!file ? (
+          {!preview ? (
             <label className="flex flex-col items-center justify-center aspect-square cursor-pointer hover:bg-surface/30">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#99968F" strokeWidth="1">
                 <rect x="3" y="3" width="18" height="18" rx="2" />

@@ -7,19 +7,16 @@ export const createPost = async (req, res) => {
     try {
         const ownerId = req.user._id;
         const { caption, type } = req.body;
-
         const file = req.file;
         if (!file) return res.status(400).json({ message: "Video or Image file is required" });
         const fileUrl = getDataUrl(file);
-        
+
         let option = {};
-        
         if (type === "reel") {
             option = {
                 resource_type: "video",
             };
         }
-
         const cloud = await cloudinary.v2.uploader.upload(fileUrl.content, {
             folder: "Core social",
             ...option
@@ -36,7 +33,6 @@ export const createPost = async (req, res) => {
         })
 
         const populatedPost = await Post.findById(post._id).populate("owner", "-password");
-
         res.status(201).json({ message: "Post created", newPost: populatedPost });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -83,7 +79,6 @@ export const homeFeed = async (req, res) => {
     try {
 
         const currentUserId = req.user._id;
-
         const posts = await Post.find({ owner: { $ne: currentUserId } })
             .sort({ createdAt: -1 })
             .populate("owner", "-password")
@@ -159,18 +154,15 @@ export const deleteComment = async (req, res) => {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ message: "Post not found" });
 
-        if (!req.body.commentId) return res.status(404).json({ message: "Provide a comment id" });
-        
-        const commentIndex = post.comments.findIndex(
-            (item) => item._id.toString() === req.body.commentId.toString()
-        );
+        const commentIndex = post.comments.findIndex((item) => item._id.toString() === req.body.commentId);
         if (commentIndex === -1) return res.status(404).json({ message: "Comment not found" });
 
         const comment = post.comments[commentIndex];
         if (post.owner.toString() === req.user._id.toString() || comment.user.toString() === req.user._id.toString()) {
             post.comments.splice(commentIndex, 1);
             await post.save();
-            res.json({ message: "Comment deleted" });
+            const updatedPost = await Post.findById(post._id).populate("owner", "-password").populate("comments.user", "profilePic name");
+            res.json({ message: "Comment deleted", updatedPost });
         } else {
             return res.status(400).json({ message: "You are not allowed to delete this comment" });
         }
@@ -189,7 +181,8 @@ export const editCaption = async (req, res) => {
         }
         post.caption = req.body.caption;
         await post.save();
-        res.json({ message: "Caption changed" });
+        const updatedPost = await Post.findById(post._id).populate("owner", "-password");
+        res.json({ message: "Caption changed", updatedPost });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

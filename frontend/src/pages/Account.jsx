@@ -24,15 +24,12 @@ export const Account = ({ user }) => {
       setSelectedPostId(item._id);
     }
   };
-
   const handleTypeClick = (type) => {
     setType(type);
-  }
-
+  };
   const handlePostDelete = () => {
     deletePost()
-  }
-
+  };
   const logoutHandler = () => {
     LogoutUser(navigate);
   };
