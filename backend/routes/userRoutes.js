@@ -6,7 +6,7 @@ import uploadFile from '../middleware/multer.js';
 const router = express.Router();
 
 router.get('/me', isAuth, myProfile);
-router.get("/allusers", isAuth, getAllUsers);
+router.get("/all", isAuth, getAllUsers);
 router.get("/search", isAuth, searchUsers);
 router.get('/:id', isAuth, userProfile);
 router.put('/profile/:id', isAuth, uploadFile, updateProfile);

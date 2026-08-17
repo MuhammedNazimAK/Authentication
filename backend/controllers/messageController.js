@@ -10,7 +10,6 @@ export const sendMessage = async (req, res) => {
         let chat = await Chat.findOne({
             users: { $all: [senderId, recieverId] },
         })
-
         if (!chat) {
             chat = new Chat({
                 users: [senderId, recieverId],
@@ -21,7 +20,6 @@ export const sendMessage = async (req, res) => {
             });
             await chat.save();
         }
-
         const newMessage = new Messages({
             chatId: chat._id,
             sender: senderId,
@@ -29,7 +27,6 @@ export const sendMessage = async (req, res) => {
         });
 
         await newMessage.save();
-
         await chat.updateOne({
             latestMessage: {
                 text: message,

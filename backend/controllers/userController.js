@@ -2,6 +2,7 @@ import { User } from "../models/userModel.js"
 import cloudinary from 'cloudinary';
 import getDataUrl from '../utils/urlGenerator.js';
 import bcrypt from 'bcrypt';
+import { Chat } from "../models/chatModel.js";
 
 export const myProfile = async (req, res) => {
     try {
@@ -127,12 +128,24 @@ export const updatePassword = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try {
-        const searchQuery = req.query.seach || "";
+        const searchQuery = req.query.search || "";
+        const userId = req.user._id;
+
         const users = await User.find({
-            _id: { $ne: req.user._id },
+            _id: { $ne: userId },
             name: { $regex: searchQuery, $options: "i"},
-        }).select("-password");
-        res.json(users);
+        }).select("-password").lean();
+        const chats = await Chat.find({ users: userId }).lean();
+        const usersWithChats = users.map((user) => {
+            const chat = chats.find((c) =>
+                c.users.some((id) => id.toString() === user._id.toString())
+            );
+            return {
+                ...user,
+                latestMessage: chat?.latestMessage || null,
+            };
+        });
+        res.json({users: usersWithChats });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
