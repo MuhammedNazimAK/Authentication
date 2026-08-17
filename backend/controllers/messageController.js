@@ -1,5 +1,6 @@
 import { Chat } from "../models/chatModel.js";
 import { Messages } from "../models/messages.js";
+import { getRecieverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
     try {
@@ -33,6 +34,11 @@ export const sendMessage = async (req, res) => {
                 sender: senderId,
             },
         });
+
+        const recieverSocketId = getRecieverSocketId(recieverId);
+        if (recieverSocketId) {
+            io.to(recieverSocketId).emit("newMessage", newMessage);
+        }
 
         res.status(201).json(newMessage);
     } catch (error) {

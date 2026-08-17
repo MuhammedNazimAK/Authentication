@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import { connectDb } from './database/db.js';
 import cloudinary from 'cloudinary';
 import cookieParser from 'cookie-parser';
+import { app, server } from "./socket/socket.js";
+import path from "path";
 
 dotenv.config();
 cloudinary.v2.config({
@@ -11,7 +13,6 @@ cloudinary.v2.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const app = express();
 const port = process.env.PORT;
 
 app.use(express.json());
@@ -27,11 +28,13 @@ app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/message", messageRoutes);
 
-app.get("/", (req, res) => {
-    res.send("hello")
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+app.get("/{*splat}", (req, res) => {
+    res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"))
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
     connectDb();
 });

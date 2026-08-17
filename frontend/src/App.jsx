@@ -14,7 +14,7 @@ import { Chat } from './pages/Chat';
 
 const App = () => {
   const { user, loading } = UserData();
-
+    
   if (loading) return null;
 
   return (
