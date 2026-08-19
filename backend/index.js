@@ -28,6 +28,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/message", messageRoutes);
 
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 app.get("/{*splat}", (req, res) => {
